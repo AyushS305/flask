@@ -79,13 +79,13 @@
          </table>
          <br>
          <table border=1>
-            <tr><th style="background-color: rgb(173, 171, 171);">TOTAL AMOUNT PAYABLE</th>
+            <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE</th>
             {% for key, value in output.items() %}
             {% if key == 'Grand Total'%}
                 <td>{{value}}</td></tr>
             {% endif %}
             {% endfor %}
-            <tr><th style="background-color: rgb(173, 171, 171);">TOTAL AMOUNT PAYABLE IN WORDS</th>
+            <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE IN WORDS</th>
                 {% for key, value in output.items() %}
                 {% if key == 'Word Amount'%}
                     <td>{{value+" only"}}</td></tr>
