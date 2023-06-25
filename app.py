@@ -23,15 +23,18 @@ def student():
 def output():
    if request.method == 'POST':
       out = request.form.to_dict()
-      output=input_template_process(out) 
-      db_injector(output)
+      global sync
+      output=input_template_process(out)
+      sync=output
       return render_template("student_invoice_output_template.html",output = output)
    
-@app.route('/print_invoice')
+@app.route('/print_invoice',methods = ['POST', 'GET'])
 def print_invoice():
-   cur=db_connect()
-   cur.execute("select item_name from products")
-
+   if request.method == 'POST':
+      output=sync
+      db_injector(output)
+      return render_template("student_invoice_print_template.html",output = output)
+   
 def input_template_process(out):
     cur=db_connect()
     cur.execute("select * from products")
