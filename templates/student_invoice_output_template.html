@@ -1,0 +1,100 @@
+<html>
+    <head>
+        <title>CONFIRM STUDENT BILLING DETAILS</title>
+        <style>
+        @media print {
+                      #printbtn  {
+                        display: none;
+                        }
+                    } 
+         h1 {
+           text-align: center;
+           display: block;
+           
+           
+         }
+         img {
+           text-align: center;
+           
+         }
+         h2 {
+           text-align: center;
+         }
+         
+         body {
+           text-align: center;
+           
+
+         }
+        
+         td{
+            text-align: center;
+         }
+         table, th {
+            margin-left: auto; 
+            margin-right: auto;
+            }
+         
+         </style>
+      </head>
+   <body>
+      
+         <h1><img src= "https://drive.google.com/uc?export=view&id=1KyfRAR13KQ8au3tKlGUaMFEc2wkErOWI" alt="PRIKAWAY"></h1>
+         <table border=1>
+            <tr >
+            {% for key, value in output.items() %}
+                {% if key in ['Name','Class','Roll No.', 'Date', 'House']%}
+                       <th style="width: 200px; background-color: gray;"> {{ key }} </th>
+
+                {% endif %}
+            {% endfor %}
+            </tr>
+            <tr>
+            {% for key, value in output.items() %}
+                {% if key in ['Name','Class','Roll No.', 'Date', 'House']%}
+                        <td> {{ value }} </td>
+                {% endif %}
+          {% endfor %}
+        </tr>
+         </table>
+         <br>
+         <table border=1>
+            <th style="background-color: gray;">Item Name</th>
+            <th style="background-color: gray;">Quantity</th>
+            <th style="background-color: gray;">Price</th>
+            <th style="background-color: gray;">Total</th>
+            {% for key, value in output.items() %}
+            {% if key not in ['Name','Class','Roll No.', 'Date', 'House', 'Grand Total', 'Word Amount']%}
+            <tr>
+               <th style="width: 500px"> {{ key }} </th>
+               <td style="width: 100px"> {{ value[0] }} </td>
+               <td style="width: 100px"> {{ value[1] }} </td>
+               <td style="width: 100px"> {{ value[2] }} </td>
+            </tr>
+            {% endif %}
+
+         {% endfor %}
+        
+         
+         </table>
+         <br>
+         <table border=1>
+            <tr><th style="background-color: gray;">TOTAL AMOUNT PAYABLE</th>
+            {% for key, value in output.items() %}
+            {% if key == 'Grand Total'%}
+                <td>{{value}}</td></tr>
+            {% endif %}
+            {% endfor %}
+            <tr><th style="background-color: gray;">TOTAL AMOUNT PAYABLE IN WORDS</th>
+                {% for key, value in output.items() %}
+                {% if key == 'Word Amount'%}
+                    <td>{{value+" only"}}</td></tr>
+                {% endif %}
+            {% endfor %}
+         </table>
+         <br>
+         <img src="https://drive.google.com/uc?export=view&id=1x1VR2s7hg5g6Je3sDjvsKXvcb2Cy60_q" width="1000px", height="200px">
+         <br>
+         <input id="printbtn" type = "button" value = "Print this Invoice" onclick="window.print();return false;">   
+   </body>
+</html>

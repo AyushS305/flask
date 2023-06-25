@@ -1,0 +1,79 @@
+<html>
+    <head>
+        <title>ENTER STUDENT BILLING DETAILS</title>
+        <style>
+         h1 {
+           text-align: center;
+           display: block;
+           border: 1px black;
+           background-color: grey;
+           
+         }
+         img {
+           text-align: center;
+           
+         }
+         h2 {
+           text-align: center;
+         }
+         
+         body {
+           text-align: center;
+           background-color:powderblue;
+
+         }
+
+         table, th, td {
+            margin-left: auto; 
+            margin-right: auto;
+            }
+         
+         </style>
+      </head>
+   <body>
+      <form action = "http://localhost:5000/output" method = "POST">
+         <h1><img src=" https://drive.google.com/uc?export=view&id=1_d2XtM4F7MGepwXL-eMrpOq4_5rvoNoe" alt="PRIKAWAY" width="50",height="50"> PRIKAWAY PRIVATE LIMITED, GURUGRAM</h1>
+         <h2>ENTER STUDENT BILLING DETAILS</h2>
+         <table>
+            <td><b>Name</b></td>
+            <td><input type = "text" name = "Name" required /></td>
+            <td><b>&emsp;Class</b></td>
+            <td><input type = "number" name = "Class" required /></td>
+            <td><b>&emsp;Roll No.</b></td>
+            <td><input type = "number" name = "Roll No." required /></td>
+            <td><b>&emsp;Date</b></td>
+            <td><input type ="date" name = "Date" required /></td>
+         </table>
+         <p><b>House&emsp;</b>
+         <input type="radio" id="Arjan" name="House" value="Arjan">
+         <label for="Arjan">Arjan</label>
+         <input type="radio" id="Cariappa" name="House" value="Cariappa">
+         <label for="Cariappa">Cariappa</label>
+         <input type="radio" id="Katari" name="House" value="Katari">
+         <label for="Katari">Katari</label>
+         <input type="radio" id="Manekshaw" name="House" value="Manekshaw">
+         <label for="Manekshaw">Manekshaw</label>
+         <input type="radio" id="Pereira" name="House" value="Pereira">
+         <label for="Pereira">Pereira</label>
+         <input type="radio" id="Subroto" name="House" value="Subroto">
+         <label for="Subroto">Subroto</label>
+         <input type="radio" id="RezangLa" name="House" value="RezangLa">
+         <label for="RezangLa">RezangLa</label></p>
+         <table>
+            <tr>
+               
+               <th>Item Name</th>
+               <th>Quantity</th>
+            </tr>
+            {% for i in items %}
+            <tr>
+                <td><b>{{i}}</b></td>
+                <td><input type = "number" name = "{{i}}" /></td>
+                {% endfor %}
+            </tr>
+        </table>
+         <p><input type = "Submit" value = "Submit" /></p>
+
+      </form>
+   </body>
+</html>
