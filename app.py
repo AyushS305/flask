@@ -57,6 +57,5 @@ def input_template_process(out):
     ter['Word Amount']=number_to_word(s)
     return(ter)
 
-
 if __name__ == '__main__':
    app.run(debug = True)
