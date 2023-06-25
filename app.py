@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 from numtoword import number_to_word
 from db_processor import *
 import sqlite3 as sql
+from date_format_change import *
 
 app = Flask(__name__)
 
@@ -25,6 +26,7 @@ def output():
       out = request.form.to_dict()
       global sync
       output=input_template_process(out)
+      output['Date']=change_date_format(output['Date'])
       sync=output
       return render_template("student_invoice_output_template.html",output = output)
    

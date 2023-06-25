@@ -44,7 +44,7 @@
             <tr >
             {% for key, value in output.items() %}
                 {% if key in ['Name','Class','Roll No.', 'Date', 'House']%}
-                       <th style="width: 200px; background-color: gray;"> {{ key }} </th>
+                       <th style="width: 200px; background-color: rgb(173, 171, 171);"> {{ key }} </th>
 
                 {% endif %}
             {% endfor %}
@@ -59,10 +59,10 @@
          </table>
          <br>
          <table border=1>
-            <th style="background-color: gray;">Item Name</th>
-            <th style="background-color: gray;">Quantity</th>
-            <th style="background-color: gray;">Price</th>
-            <th style="background-color: gray;">Total</th>
+            <th style="background-color: rgb(173, 171, 171);">Item Name</th>
+            <th style="background-color: rgb(173, 171, 171);">Quantity</th>
+            <th style="background-color: rgb(173, 171, 171);">Price</th>
+            <th style="background-color: rgb(173, 171, 171);">Total</th>
             {% for key, value in output.items() %}
             {% if key not in ['Name','Class','Roll No.', 'Date', 'House', 'Grand Total', 'Word Amount']%}
             <tr>
@@ -79,13 +79,13 @@
          </table>
          <br>
          <table border=1>
-            <tr><th style="background-color: gray;">TOTAL AMOUNT PAYABLE</th>
+            <tr><th style="background-color: rgb(173, 171, 171);">TOTAL AMOUNT PAYABLE</th>
             {% for key, value in output.items() %}
             {% if key == 'Grand Total'%}
                 <td>{{value}}</td></tr>
             {% endif %}
             {% endfor %}
-            <tr><th style="background-color: gray;">TOTAL AMOUNT PAYABLE IN WORDS</th>
+            <tr><th style="background-color: rgb(173, 171, 171);">TOTAL AMOUNT PAYABLE IN WORDS</th>
                 {% for key, value in output.items() %}
                 {% if key == 'Word Amount'%}
                     <td>{{value+" only"}}</td></tr>
