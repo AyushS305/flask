@@ -32,7 +32,7 @@ def output():
 def print_invoice():
    if request.method == 'POST':
       output=sync
-      db_injector(output)
+      output['Invoice No.']= db_injector(output)
       return render_template("student_invoice_print_template.html",output = output)
    
 def input_template_process(out):

@@ -42,7 +42,7 @@
          <table border=1>
             <tr >
             {% for key, value in output.items() %}
-                {% if key in ['Name','Class','Roll No.', 'Date', 'House']%}
+                {% if key in ['Name','Class','Roll No.', 'Date', 'House', 'Invoice No.']%}
                        <th style="width: 200px; background-color: gray;"> {{ key }} </th>
 
                 {% endif %}
@@ -50,7 +50,7 @@
             </tr>
             <tr>
             {% for key, value in output.items() %}
-                {% if key in ['Name','Class','Roll No.', 'Date', 'House']%}
+                {% if key in ['Name','Class','Roll No.', 'Date', 'House', 'Invoice No.']%}
                         <td> {{ value }} </td>
                 {% endif %}
           {% endfor %}
@@ -94,6 +94,6 @@
          <br>
          <img src="https://drive.google.com/uc?export=view&id=1x1VR2s7hg5g6Je3sDjvsKXvcb2Cy60_q" width="1000px", height="200px">
          <br>
-         <input id="printbtn" type = "button" value = "Print this Invoice" onclick="window.print();return false;">   
+         <input id="printbtn" type = "button" value = "Print this Invoice" onclick="window.print();return false;window.location.href='/print_invoice';">   
    </body>
 </html>

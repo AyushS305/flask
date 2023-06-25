@@ -12,3 +12,4 @@ def db_injector(dict_with_invoice_data):
             sql1='insert into sales(roll_no,student_name,class,house,item_purchased,item_quantity,total_price,tc_leave,date_of_purchase,bill_no) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
             cur.execute(sql1%render)
             con.commit()
+    return bill_no
