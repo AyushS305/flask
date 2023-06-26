@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 from numtoword import number_to_word
 from db_processor import *
 import sqlite3 as sql
@@ -11,8 +11,21 @@ def db_connect():
     cur = con.cursor()
     return cur
 
-@app.route('/')
-def student():
+@app.route('/', methods = ['POST', 'GET'])
+def auth():
+   error=None
+   if request.method == 'POST':
+      if request.form['username']!='rukaifu@gmail.com' or request.form['password']!='12345':
+         error = 'Invalid Credentials. Please try again.'
+      else:
+         return redirect(url_for('input'))
+         
+   return render_template('login.html', error=error)
+   
+
+@app.route('/input', methods = ['POST', 'GET'])
+def input ():
+   
    cur=db_connect()
    cur.execute("select item_name from products")
    y=z=[]
