@@ -18,14 +18,16 @@ def auth():
       if request.form['username']!='rukaifu@gmail.com' or request.form['password']!='12345':
          error = 'Invalid Credentials. Please try again.'
       else:
-         return redirect(url_for('input'))
-         
+         return redirect(url_for('homepage'))     
    return render_template('login.html', error=error)
+
+@app.route('/homepage')
+def homepage():
+   return render_template('homepage.html')
    
 
 @app.route('/input', methods = ['POST', 'GET'])
 def input ():
-   
    cur=db_connect()
    cur.execute("select item_name from products")
    y=z=[]
