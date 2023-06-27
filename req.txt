@@ -1,0 +1,8 @@
+pandas
+flask
+flask_login
+sqlite3
+flask_mail
+re
+datetime
+csv

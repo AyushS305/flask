@@ -1,10 +1,19 @@
 from flask import Flask, render_template, request, redirect, url_for
+from flask_mail import Mail
 from numtoword import number_to_word
 from db_processor import *
 import sqlite3 as sql
 from date_format_change import *
 
 app = Flask(__name__)
+
+app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'cc.prikaway@gmail.com'
+app.config['MAIL_PASSWORD'] = 'prika@8092'
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+mail = Mail(app)
 
 def db_connect():
     con = sql.connect('prikaway.db')
