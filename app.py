@@ -1,19 +1,24 @@
 from flask import Flask, render_template, request, redirect, url_for
-from flask_mail import Mail
+from flask_mail import Mail, Message
 from numtoword import number_to_word
 from db_processor import *
 import sqlite3 as sql
 from date_format_change import *
+import pandas as pd
+from email.mime.text import MIMEText
+from pretty_html_table import build_table
 
 app = Flask(__name__)
+mail = Mail(app)
 
 app.config['MAIL_SERVER']='smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = 'cc.prikaway@gmail.com'
-app.config['MAIL_PASSWORD'] = 'prika@8092'
+app.config['MAIL_USERNAME'] = 'prateeksrivastava9@gmail.com'
+app.config['MAIL_PASSWORD'] = 'wkygpbmrekiknxzw'
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 mail = Mail(app)
+
 
 def db_connect():
     con = sql.connect('prikaway.db')
@@ -59,6 +64,16 @@ def print_invoice():
    if request.method == 'POST':
       output=sync
       output['Invoice No.']= db_injector(output)
+      df=pd.DataFrame.from_dict(output)
+      msg = Message(
+                output['Invoice No.'],
+                sender ='Tera BAAP',
+                recipients = ['cc.prikaway@gmail.com']
+               )
+      
+      msg.body = " Please see the details below."
+      msg.html = render_template("student_invoice_print_template.html", output=output)
+      mail.send(msg)
       return render_template("student_invoice_print_template.html",output = output)
    
 def input_template_process(out):
