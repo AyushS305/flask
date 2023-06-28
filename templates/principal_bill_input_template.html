@@ -19,7 +19,7 @@
          
          body {
            text-align: center;
-           background-color:powderblue;
+           background-color:rgb(3, 161, 182);
 
          }
 
@@ -31,7 +31,7 @@
          </style>
       </head>
    <body>
-      <form action = "http://localhost:5000/output" method = "POST">
+      <form action = "http://localhost:5000/generate_bill" method = "POST">
          <h1><img src=" https://drive.google.com/uc?export=view&id=1_d2XtM4F7MGepwXL-eMrpOq4_5rvoNoe" alt="PRIKAWAY" width="50",height="50"> PRIKAWAY PRIVATE LIMITED GURUGRAM</h1>
          <h2>ENTER SCHOOL BILLING DETAILS</h2>
          <table>    
@@ -40,8 +40,6 @@
             <td><b>&emsp;End Date</b></td>
             <td><input type ="date" name = "end_date" required /></td>
          </table>
-         
-
          <p><input type = "Submit" value = "Submit" /></p>
 
       </form>

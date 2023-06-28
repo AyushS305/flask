@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>CONFIRM STUDENT BILLING DETAILS</title>
+        <title>CONFIRM PRINCIPAL BILLING DETAILS</title>
         <style>
         @media print {
                       #printbtn  {
@@ -23,7 +23,8 @@
          
          body {
            text-align: center;
-         
+           
+
          }
         
          td{
@@ -37,55 +38,35 @@
          </style>
       </head>
    <body>
-    <form action = "http://localhost:5000/print_invoice" method = "POST">
          <h1><img src= "https://drive.google.com/uc?export=view&id=1KyfRAR13KQ8au3tKlGUaMFEc2wkErOWI" alt="PRIKAWAY"></h1>
          <table border=1>
-            <tr >
-            {% for key, value in output.items() %}
-                {% if key in ['Name','Class','Roll No.', 'Date', 'House']%}
-                       <th style="width: 200px; background-color: rgb(173, 171, 171);"> {{ key }} </th>
-
-                {% endif %}
-            {% endfor %}
-            </tr>
-            <tr>
-            {% for key, value in output.items() %}
-                {% if key in ['Name','Class','Roll No.', 'Date', 'House']%}
-                        <td> {{ value }} </td>
-                {% endif %}
-          {% endfor %}
-        </tr>
-         </table>
-         <br>
-         <table border=1>
             <th style="background-color: rgb(173, 171, 171);">Item Name</th>
-            <th style="background-color: rgb(173, 171, 171);">Quantity</th>
-            <th style="background-color: rgb(173, 171, 171);">Price</th>
-            <th style="background-color: rgb(173, 171, 171);">Total</th>
-            {% for key, value in output.items() %}
-            {% if key not in ['Name','Class','Roll No.', 'Date', 'House', 'Grand Total', 'Word Amount']%}
-            <tr>
-               <th style="width: 500px"> {{ key }} </th>
+            <th style="background-color: rgb(173, 171, 171);">Price Per Unit</th>
+            <th style="background-color: rgb(173, 171, 171);">Total Quantity</th>
+            <th style="background-color: rgb(173, 171, 171);">Total Price</th>
+            {% for key, value in result.items() %}
+            {% if key not in('Grand Total','Word Amount') %}
+            <tr >
+                <th style="width: 500px"> {{ key }} </th>
                <td style="width: 100px"> {{ value[0] }} </td>
                <td style="width: 100px"> {{ value[1] }} </td>
                <td style="width: 100px"> {{ value[2] }} </td>
             </tr>
             {% endif %}
-
-         {% endfor %}
-        
-         
+                {% endfor %}
+           
          </table>
          <br>
+         
          <table border=1>
             <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE</th>
-            {% for key, value in output.items() %}
+            {% for key, value in result.items() %}
             {% if key == 'Grand Total'%}
                 <td>{{value}}</td></tr>
             {% endif %}
             {% endfor %}
             <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE IN WORDS</th>
-                {% for key, value in output.items() %}
+                {% for key, value in result.items() %}
                 {% if key == 'Word Amount'%}
                     <td>{{value+" only"}}</td></tr>
                 {% endif %}

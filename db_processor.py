@@ -19,3 +19,14 @@ def db_injector(dict_with_invoice_data):
             cur.execute(sql1%render)
             con.commit()
     return bill_no
+
+def db_search(dict_with_data):
+    con = sql.connect('prikaway.db')
+    cur = con.cursor()
+    query=""" select item_purchased, p.item_price, sum(item_quantity), sum(total_price) 	
+                    from sales s
+                    join products p on p.id=s.item_id
+                    where date_of_purchase BETWEEN ? AND ? group by item_purchased;""" 
+    cur.execute(query,(dict_with_data['start_date'],dict_with_data['end_date']))
+    return cur.fetchall()
+    

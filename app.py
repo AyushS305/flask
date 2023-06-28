@@ -1,20 +1,17 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_mail import Mail, Message
 from numtoword import number_to_word
-from db_processor import *
 import sqlite3 as sql
+from db_processor import *
 from date_format_change import *
-import pandas as pd
-from email.mime.text import MIMEText
-from pretty_html_table import build_table
 
 app = Flask(__name__)
 mail = Mail(app)
 
 app.config['MAIL_SERVER']='smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = 'prateeksrivastava9@gmail.com'
-app.config['MAIL_PASSWORD'] = 'wkygpbmrekiknxzw'
+app.config['MAIL_USERNAME'] = 'cc.prikaway@gmail.com'
+app.config['MAIL_PASSWORD'] = 'razxzzfslhyrxcni'
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 mail = Mail(app)
@@ -64,17 +61,41 @@ def print_invoice():
    if request.method == 'POST':
       output=sync
       output['Invoice No.']= db_injector(output)
-      df=pd.DataFrame.from_dict(output)
       msg = Message(
                 output['Invoice No.'],
-                sender ='Tera BAAP',
-                recipients = ['cc.prikaway@gmail.com']
+                sender ='MailBot',
+                recipients = ['prikawayinvoicemailbot@gmail.com']
                )
       
       msg.body = " Please see the details below."
       msg.html = render_template("student_invoice_print_template.html", output=output)
       mail.send(msg)
       return render_template("student_invoice_print_template.html",output = output)
+   
+@app.route('/principal_bill',methods=['POST','GET'])
+def principal_bill():
+   return render_template('principal_bill_input_template.html')
+
+@app.route('/generate_bill',methods=['POST','GET'])
+def generate_bill():
+   if request.method == 'POST':
+      out = request.form.to_dict()
+      res=db_search(out)
+      print(res)
+      result={}
+      s=q=0
+      for x in res:
+         result[x[0]]=[x[1],x[2],x[3]]
+         s=s+x[3]
+         q=q+x[2]
+
+      result['Grand Total']=s
+      result['Item Total']=s
+      result['Word Amount']=number_to_word(s)
+      print(result)
+      return render_template('principal_bill_output_template.html', result=result)
+
+
    
 def input_template_process(out):
     cur=db_connect()
