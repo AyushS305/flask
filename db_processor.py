@@ -5,7 +5,7 @@ def db_injector(dict_with_invoice_data):
     con = sql.connect('prikaway.db')
     cur = con.cursor()
     cur1=con.cursor()
-    my_date= datetime.strptime(dict_with_invoice_data['Date'], '%d-%m-%Y')
+    my_date= datetime.strptime(dict_with_invoice_data['Date'], '%Y-%m-%d')
     bill_no= 'PWPL/RW/'+str(my_date.year)+'/'+str(my_date.month)+'/'+str(dict_with_invoice_data['Roll No.'])
     for x in dict_with_invoice_data.keys():
         if x not in ['Roll No.','Name','Class','House','Date', 'Grand Total', 'Word Amount', 'Item Total']:
