@@ -63,7 +63,7 @@
             <th style="background-color: rgb(173, 171, 171);">Price</th>
             <th style="background-color: rgb(173, 171, 171);">Total</th>
             {% for key, value in output.items() %}
-            {% if key not in ['Name','Class','Roll No.', 'Date', 'House', 'Grand Total', 'Word Amount', 'Invoice No.']%}
+            {% if key not in ['Name','Class','Roll No.', 'Date', 'House', 'Grand Total', 'Word Amount', 'Invoice No.','Item Total']%}
             <tr>
                <th style="width: 500px"> {{ key }} </th>
                <td style="width: 100px"> {{ value[0] }} </td>
@@ -78,6 +78,12 @@
          </table>
          <br>
          <table border=1>
+            <tr><th style="background-color: rgb(199, 196, 196);">TOTAL NO. OF ITEMS</th>
+               {% for key, value in output.items() %}
+               {% if key == 'Item Total'%}
+                   <td>{{value}}</td></tr>
+               {% endif %}
+               {% endfor %}
             <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE</th>
             {% for key, value in output.items() %}
             {% if key == 'Grand Total'%}

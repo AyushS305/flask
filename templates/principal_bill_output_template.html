@@ -45,11 +45,11 @@
             <th style="background-color: rgb(173, 171, 171);">Total Quantity</th>
             <th style="background-color: rgb(173, 171, 171);">Total Price</th>
             {% for key, value in result.items() %}
-            {% if key not in('Grand Total','Word Amount') %}
+            {% if key not in('Grand Total','Word Amount','Item Total') %}
             <tr >
-                <th style="width: 500px"> {{ key }} </th>
+                <th style="width: 400px"> {{ key }} </th>
                <td style="width: 100px"> {{ value[0] }} </td>
-               <td style="width: 100px"> {{ value[1] }} </td>
+               <td style="width: 150px"> {{ value[1] }} </td>
                <td style="width: 100px"> {{ value[2] }} </td>
             </tr>
             {% endif %}
@@ -59,12 +59,20 @@
          <br>
          
          <table border=1>
+            <tr><th style="background-color: rgb(199, 196, 196);">TOTAL NO. OF ITEMS</th>
+                {% for key, value in result.items() %}
+                {% if key == 'Item Total'%}
+                    <td>{{value}}</td></tr>
+                {% endif %}
+                {% endfor %}
+
             <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE</th>
             {% for key, value in result.items() %}
             {% if key == 'Grand Total'%}
                 <td>{{value}}</td></tr>
             {% endif %}
             {% endfor %}
+
             <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE IN WORDS</th>
                 {% for key, value in result.items() %}
                 {% if key == 'Word Amount'%}

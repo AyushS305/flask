@@ -8,7 +8,7 @@ def db_injector(dict_with_invoice_data):
     my_date= datetime.strptime(dict_with_invoice_data['Date'], '%d-%m-%Y')
     bill_no= 'PWPL/RW/'+str(my_date.year)+'/'+str(my_date.month)+'/'+str(dict_with_invoice_data['Roll No.'])
     for x in dict_with_invoice_data.keys():
-        if x not in ['Roll No.','Name','Class','House','Date', 'Grand Total', 'Word Amount']:
+        if x not in ['Roll No.','Name','Class','House','Date', 'Grand Total', 'Word Amount', 'Item Total']:
             cur1.execute("select id, item_name from products")
             for y in cur1.fetchall():
                 if x==y[1]:

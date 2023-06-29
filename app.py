@@ -4,6 +4,7 @@ from numtoword import number_to_word
 import sqlite3 as sql
 from db_processor import *
 from date_format_change import *
+from babel.numbers import format_currency
 
 app = Flask(__name__)
 mail = Mail(app)
@@ -68,6 +69,7 @@ def print_invoice():
                )
       
       msg.body = " Please see the details below."
+      output=output_template_format(output)
       msg.html = render_template("student_invoice_print_template.html", output=output)
       mail.send(msg)
       return render_template("student_invoice_print_template.html",output = output)
@@ -81,18 +83,16 @@ def generate_bill():
    if request.method == 'POST':
       out = request.form.to_dict()
       res=db_search(out)
-      print(res)
       result={}
       s=q=0
       for x in res:
-         result[x[0]]=[x[1],x[2],x[3]]
+         result[x[0]]=[format_currency(x[1], 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False), x[2], format_currency(x[3], 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)]
          s=s+x[3]
          q=q+x[2]
 
-      result['Grand Total']=s
-      result['Item Total']=s
+      result['Grand Total']=format_currency(s, 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)
+      result['Item Total']=q
       result['Word Amount']=number_to_word(s)
-      print(result)
       return render_template('principal_bill_output_template.html', result=result)
 
 
@@ -102,7 +102,7 @@ def input_template_process(out):
     cur.execute("select * from products")
     rows=cur.fetchall()
     ter={}
-    s=0
+    s=q=0
     for x in out.keys():
        if x not in ['Name','Class','Roll No.', 'Date', 'House']:
           if out[x]=='':
@@ -111,11 +111,21 @@ def input_template_process(out):
              if x==y[1]:
                 ter[x]=([int(out[x]),y[2],int(out[x])*y[2]])
                 s+=int(out[x])*y[2]
+                q+=int(out[x])
        else:
           ter[x]=out[x]
     ter['Grand Total']=s
+    ter['Item Total']=q
     ter['Word Amount']=number_to_word(s)
     return(ter)
+
+def output_template_format(out):
+    for x in out.keys():
+       if x not in ['Name','Class','Roll No.', 'Date', 'House', 'Grand Total', 'Word Amount', 'Item Total','Invoice No.']:
+         out[x][1]=format_currency(float(out[x][1]), 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)
+         out[x][2]=format_currency(float(out[x][2]), 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)  
+    out['Grand Total']=format_currency(float(out['Grand Total']), 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)
+    return(out)
 
 if __name__ == '__main__':
    app.run(debug = True)
