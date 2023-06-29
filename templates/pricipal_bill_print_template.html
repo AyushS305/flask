@@ -1,8 +1,12 @@
 <html>
     <head>
-        <title>CONFIRM PRINCIPAL BILLING DETAILS</title>
+        <title>PRINT BILL</title>
         <style>
-        
+        @media print {
+                      #printbtn  {
+                        display: none;
+                        }
+                    } 
          h1 {
            text-align: center;
            display: block;
@@ -44,7 +48,6 @@
          </style>
       </head>
    <body>
-    <form action = "http://localhost:5000/print_school_bill" method = "POST">
          <h1><img src= "https://drive.google.com/uc?export=view&id=1KyfRAR13KQ8au3tKlGUaMFEc2wkErOWI" alt="PRIKAWAY"></h1>
          
          <div class="container" style="display: flex; height: 60px; text-align: left;">
@@ -106,8 +109,7 @@
                 {% endif %}
             {% endfor %}
          </table>
-         <h5>PRINCIPAL'S SIGNATURE &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp;AUTHORISED SIGNATURE	</h5>  
-         <input type = "Submit" value = "Confirm details & Print Bill" >
-         </form>
+         <h5>PRINCIPAL'S SIGNATURE &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp;AUTHORISED SIGNATURE	</h5>   
+         <input id="printbtn" type = "Submit" value = "Print Bill" onclick="window.print();return false;window.location.href='/print_invoice';">
         </body>
 </html>

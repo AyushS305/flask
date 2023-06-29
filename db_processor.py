@@ -30,3 +30,4 @@ def db_search(dict_with_data):
     cur.execute(query,(dict_with_data['start_date'],dict_with_data['end_date']))
     return cur.fetchall()
     
+    

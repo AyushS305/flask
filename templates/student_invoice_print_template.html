@@ -81,19 +81,19 @@
             <tr><th style="background-color: rgb(199, 196, 196);">TOTAL NO. OF ITEMS</th>
                {% for key, value in output.items() %}
                {% if key == 'Item Total'%}
-                   <td>{{value}}</td></tr>
+                   <td><b>{{value}}</b></td></tr>
                {% endif %}
                {% endfor %}
             <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE</th>
             {% for key, value in output.items() %}
             {% if key == 'Grand Total'%}
-                <td>{{value}}</td></tr>
+                <td><b>{{value}}</b></td></tr>
             {% endif %}
             {% endfor %}
             <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE IN WORDS</th>
                 {% for key, value in output.items() %}
                 {% if key == 'Word Amount'%}
-                    <td>{{value+" only"}}</td></tr>
+                    <td><b>{{value+" only"}}</b></td></tr>
                 {% endif %}
             {% endfor %}
          </table>
