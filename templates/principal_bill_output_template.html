@@ -11,8 +11,19 @@
            text-align: center;
            display: block;
            
-           
          }
+        
+         div {
+              
+              width: 800px;
+              border: 1px solid black;
+              text-align:left;
+              display: block;
+              margin-left: auto; 
+              margin-right: auto;
+              
+            }
+
          img {
            text-align: center;
            
@@ -24,7 +35,6 @@
          body {
            text-align: center;
            
-
          }
         
          td{
@@ -39,13 +49,32 @@
       </head>
    <body>
          <h1><img src= "https://drive.google.com/uc?export=view&id=1KyfRAR13KQ8au3tKlGUaMFEc2wkErOWI" alt="PRIKAWAY"></h1>
+         
+         <div class="container" style="display: flex; height: 60px; text-align: left;">
+          <div style="width: 50%;">
+            <b>To,</b><br>
+            <b>The Principal,</b><br>
+            <b>Sainik School,Rewari</b>
+          </div>
+          <div style="flex-grow: 1; text-align: right; ">
+            {% for key, value in result.items() %}
+            {% if key == 'Date' %}
+                 <b>Date: {{ value }}</b><br>
+                {% endif %}
+            {% if key == 'Invoice No.' %}
+               <b>Invoice No.:{{ value }}  </b>
+               {% endif %}
+               {% endfor %}
+          </div>
+      </div>
+        <br>
          <table border=1>
             <th style="background-color: rgb(173, 171, 171);">Item Name</th>
             <th style="background-color: rgb(173, 171, 171);">Price Per Unit</th>
             <th style="background-color: rgb(173, 171, 171);">Total Quantity</th>
             <th style="background-color: rgb(173, 171, 171);">Total Price</th>
             {% for key, value in result.items() %}
-            {% if key not in('Grand Total','Word Amount','Item Total') %}
+            {% if key not in('Grand Total','Word Amount','Item Total', 'Date', 'Invoice No.') %}
             <tr >
                 <th style="width: 400px"> {{ key }} </th>
                <td style="width: 100px"> {{ value[0] }} </td>
@@ -62,7 +91,7 @@
             <tr><th style="background-color: rgb(199, 196, 196);">TOTAL NO. OF ITEMS</th>
                 {% for key, value in result.items() %}
                 {% if key == 'Item Total'%}
-                    <td>{{value}}</td></tr>
+                    <td><b>{{value}}</b></td></tr>
                 {% endif %}
                 {% endfor %}
 
@@ -80,10 +109,8 @@
                 {% endif %}
             {% endfor %}
          </table>
-         <br>
-         <img src="https://drive.google.com/uc?export=view&id=1x1VR2s7hg5g6Je3sDjvsKXvcb2Cy60_q" width="1000px", height="200px">
-         <br>
-         <input type = "Submit" value = "Confirm details & Save to database" >   
+         <h5>PRINCIPAL'S SIGNATURE &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp;AUTHORISED SIGNATURE	</h5>   
+         <input type = "Submit" value = "Confirm details & Print Bill" >
          </form>
         </body>
 </html>

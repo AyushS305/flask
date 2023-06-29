@@ -5,6 +5,7 @@ import sqlite3 as sql
 from db_processor import *
 from date_format_change import *
 from babel.numbers import format_currency
+from datetime import date
 
 app = Flask(__name__)
 mail = Mail(app)
@@ -89,7 +90,8 @@ def generate_bill():
          result[x[0]]=[format_currency(x[1], 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False), x[2], format_currency(x[3], 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)]
          s=s+x[3]
          q=q+x[2]
-
+      result['Date']=change_date_format(str(date.today()))
+      result['Invoice No.']=hash(str(date.today())+'PWPL/RW')
       result['Grand Total']=format_currency(s, 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)
       result['Item Total']=q
       result['Word Amount']=number_to_word(s)
