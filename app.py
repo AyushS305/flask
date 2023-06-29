@@ -96,6 +96,10 @@ def print_school_bill():
       mail.send(msg)
       return render_template("pricipal_bill_print_template.html",result = result)
    
+@app.route('/cover_page_input', methods=['POST','GET'])
+def cover_page_input():
+   return render_template('cover_page_input.html')
+
 
 if __name__ == '__main__':
    app.run(debug = True)
