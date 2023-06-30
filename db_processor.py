@@ -30,14 +30,23 @@ def db_search(dict_with_data):
     cur.execute(query,(dict_with_data['start_date'],dict_with_data['end_date']))
     return cur.fetchall()
 
-def db_search(dict_with_data):
+def db_search_house_cover(dict_with_data):
     con = sql.connect('prikaway.db')
     cur = con.cursor()
     query=""" select roll_no, student_name, class, sum(item_quantity), sum(total_price) 	
                 from sales s
-                where date_of_purchase BETWEEN '2023-06-01' ? AND ? AND house=?
+                where date_of_purchase BETWEEN ? AND ? AND house=?
                 group by roll_no, student_name, class 
                 order by class,roll_no ;""" 
     cur.execute(query,(dict_with_data['start_date'],dict_with_data['end_date'],dict_with_data['House']))
+    return cur.fetchall()
+
+def db_search_all_house_cover(dict_with_data):
+    con = sql.connect('prikaway.db')
+    cur = con.cursor()
+    query=""" select house, sum(item_quantity), sum(total_price) 	
+                from sales
+                where date_of_purchase BETWEEN ? AND ? group by house order by house;""" 
+    cur.execute(query,(dict_with_data['start_date'],dict_with_data['end_date']))
     return cur.fetchall()
     

@@ -100,6 +100,35 @@ def print_school_bill():
 def cover_page_input():
    return render_template('cover_page_input.html')
 
+@app.route('/confirm_cover_page', methods=['POST','GET'])
+def confirm_cover_page():
+   if request.method == 'POST':
+         data = request.form.to_dict()
+         if data['House'] == 'All':
+            result=db_search_all_house_cover(data)
+            result=all_house_cover_process(result)
+            result['House']='All'
+         else:
+            result=db_search_house_cover(data)
+            result=house_cover_process(result)
+            result['House']=data['House']
+         global sync_cover_data
+         sync_cover_data=result
+         return render_template("cover_page_house.html", result=result)
+   
+@app.route('/print_house_cover_page',methods=['POST','GET'])
+def print_house_cover_page():
+   if request.method == 'POST':
+      result=sync_cover_data
+      msg = Message(
+                "COVER PAGE TO SAINIK SCHOOL REWARI PRINCIPAL GENERATED# "+result['Invoice No.'],
+                sender ='MailBot',
+                recipients = ['prikawayinvoicemailbot@gmail.com']
+               )
+      msg.body = " Please see the details below."
+      msg.html = render_template("cover_page_print.html", result=result)
+      mail.send(msg)
+      return render_template("cover_page_print.html",result = result)
 
 if __name__ == '__main__':
    app.run(debug = True)

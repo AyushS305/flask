@@ -48,3 +48,31 @@ def school_pricipal_bill_process(res):
    result['Item Total']=q
    result['Word Amount']=number_to_word(s)
    return result
+
+def house_cover_process(res):
+   result={}
+   s=q=0
+   for x in res:
+      result[x[0]]=([x[1],x[2],x[3],format_currency(x[4], 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)])      
+      s=s+x[4]
+      q=q+x[3]
+   result['Date']=change_date_format(str(date.today()))
+   result['Invoice No.']=str(abs(hash('PWPL/RW/'+str(date.today()))))
+   result['Grand Total']=format_currency(s, 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)
+   result['Item Total']=q
+   result['Word Amount']=number_to_word(s)
+   return result
+
+def all_house_cover_process(res):
+   result={}
+   s=q=0
+   for x in res:
+      result[x[0]]=([x[1],format_currency(x[2], 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)])      
+      s=s+x[2]
+      q=q+x[1]
+   result['Date']=change_date_format(str(date.today()))
+   result['Invoice No.']=str(abs(hash('PWPL/RW/'+str(date.today()))))
+   result['Grand Total']=format_currency(s, 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)
+   result['Item Total']=q
+   result['Word Amount']=number_to_word(s)
+   return result
