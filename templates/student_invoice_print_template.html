@@ -79,23 +79,11 @@
          <br>
          <table border=1>
             <tr><th style="background-color: rgb(199, 196, 196);">TOTAL NO. OF ITEMS</th>
-               {% for key, value in output.items() %}
-               {% if key == 'Item Total'%}
-                   <td><b>{{value}}</b></td></tr>
-               {% endif %}
-               {% endfor %}
+                   <td><b>{{output['Item Total']}}</b></td></tr>
             <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE</th>
-            {% for key, value in output.items() %}
-            {% if key == 'Grand Total'%}
-                <td><b>{{value}}</b></td></tr>
-            {% endif %}
-            {% endfor %}
+                <td><b>{{output['Grand Total']}}</b></td></tr>
             <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE IN WORDS</th>
-                {% for key, value in output.items() %}
-                {% if key == 'Word Amount'%}
-                    <td><b>{{value+" only"}}</b></td></tr>
-                {% endif %}
-            {% endfor %}
+            <td><b>{{output['Word Amount']+" only"}}</b></td></tr>
          </table>
          <br>
          <img src="https://drive.google.com/uc?export=view&id=1x1VR2s7hg5g6Je3sDjvsKXvcb2Cy60_q" width="1000px", height="200px">
