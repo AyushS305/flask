@@ -1,0 +1,113 @@
+<html>
+    <head>
+        <title>CONFIRM DETAILS</title>
+        <style>
+        
+         h1 {
+           text-align: center;
+           display: block;
+           
+         }
+        
+         div {
+              
+              width: 800px;
+              border: 1px solid black;
+              text-align:left;
+              display: block;
+              margin-left: auto; 
+              margin-right: auto;
+              
+            }
+
+         img {
+           text-align: center;
+           
+         }
+         h2 {
+           text-align: center;
+         }
+         
+         body {
+           text-align: center;
+           
+         }
+        
+         td{
+            text-align: center;
+         }
+         table, th {
+            margin-left: auto; 
+            margin-right: auto;
+            }
+         
+         </style>
+      </head>
+   <body>
+    <form action = "http://localhost:5000/print_house_cover_page" method = "POST">
+         <h1><img src= "https://drive.google.com/uc?export=view&id=1KyfRAR13KQ8au3tKlGUaMFEc2wkErOWI" alt="PRIKAWAY"></h1>
+         {% if result['House']=='All'%}
+         <h1>House Summary</h1>
+         <table border=1>
+            <th style="background-color: rgb(173, 171, 171);">House</th>
+            <th style="background-color: rgb(173, 171, 171);">Total Quantity</th>
+            <th style="background-color: rgb(173, 171, 171);">Total Price</th>
+            {% for key, value in result.items() %}
+            {% if key not in('Grand Total','Word Amount','Item Total', 'Date', 'Invoice No.','House') %}
+            <tr >
+                <th style="width: 200px"> {{ key }} </th>
+               <td style="width: 120px"> {{ value[0] }} </td>
+               <td style="width: 120px"> {{ value[1] }} </td>
+            </tr>
+            {% endif %}
+            {% endfor %}     
+         </table>
+         <br>
+         
+         <table border=1>
+            <tr><th style="background-color: rgb(199, 196, 196);">TOTAL NO. OF ITEMS</th>
+            <td><b>{{result['Item Total']}}</b></td></tr>
+            <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE</th>
+            <td><b>{{result['Grand Total']}}</b></td></tr>
+            <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE IN WORDS</th>
+            <td><b>{{result['Word Amount']}}</b></td></tr>
+         </table><br>
+         <input type = "Submit" value = "Confirm details & Print Cover Page" >
+
+         {% else %}
+
+         <h1>{{result['House']}} House</h1>
+         <table border=1>
+            <th style="background-color: rgb(173, 171, 171);">Roll No.</th>
+            <th style="background-color: rgb(173, 171, 171);">Name</th>
+            <th style="background-color: rgb(173, 171, 171);">Class</th>
+            <th style="background-color: rgb(173, 171, 171);">Total Quantity</th>
+            <th style="background-color: rgb(173, 171, 171);">Total Price</th>
+            {% for key, value in result.items() %}
+            {% if key not in('Grand Total','Word Amount','Item Total', 'Date', 'Invoice No.','House') %}
+            <tr >
+                <th style="width: 100px"> {{ key }} </th>
+               <td style="width: 300px"> {{ value[0] }} </td>
+               <td style="width: 120px"> {{ value[1] }} </td>
+               <td style="width: 120px"> {{ value[2] }} </td>
+               <td style="width: 100px"> {{ value[3] }} </td>
+            </tr>
+            {% endif %}
+            {% endfor %}     
+         </table>
+         <br>
+         
+         <table border=1>
+            <tr><th style="background-color: rgb(199, 196, 196);">TOTAL NO. OF ITEMS</th>
+            <td><b>{{result['Item Total']}}</b></td></tr>
+            <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE</th>
+            <td><b>{{result['Grand Total']}}</b></td></tr>
+            <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE IN WORDS</th>
+            <td><b>{{result['Word Amount']}}</b></td></tr>
+         </table>
+         <h5>HOUSE MASTER'S SIGNATURE &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp;AUTHORISED SIGNATURE	</h5>  
+         <input type = "Submit" value = "Confirm details & Print Cover Page" >
+         {% endif %}
+         </form>
+        </body>
+</html>

@@ -85,26 +85,14 @@
          <br>
          
          <table border=1>
-            <tr><th style="background-color: rgb(199, 196, 196);">TOTAL NO. OF ITEMS</th>
-                {% for key, value in result.items() %}
-                {% if key == 'Item Total'%}
-                    <td><b>{{value}}</b></td></tr>
-                {% endif %}
-                {% endfor %}
-
+            <tr>
+            <th style="background-color: rgb(199, 196, 196);">TOTAL NO. OF ITEMS</th>
+            <td><b>{{result['Item Total']}}</b></td></tr>
             <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE</th>
-            {% for key, value in result.items() %}
-            {% if key == 'Grand Total'%}
-                <td><b>{{value}}</b></td></tr>
-            {% endif %}
-            {% endfor %}
-
+            <td><b>{{result['Grand Total']}}</b></td></tr>
             <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE IN WORDS</th>
-                {% for key, value in result.items() %}
-                {% if key == 'Word Amount'%}
-                    <td><b>{{value+" only"}}</b></td></tr>
-                {% endif %}
-            {% endfor %}
+            <td><b>{{result['Word Amount']}} only</b></td>
+          </tr>        
          </table>
          <h5>PRINCIPAL'S SIGNATURE &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp;AUTHORISED SIGNATURE	</h5>  
          <input type = "Submit" value = "Confirm details & Print Bill" >

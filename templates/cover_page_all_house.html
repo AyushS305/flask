@@ -1,12 +1,8 @@
 <html>
     <head>
-        <title>EMAIL SENT::PRINT BILL</title>
+        <title>CONFIRM DETAILS</title>
         <style>
-        @media print {
-                      #printbtn  {
-                        display: none;
-                        }
-                    } 
+        
          h1 {
            text-align: center;
            display: block;
@@ -48,42 +44,26 @@
          </style>
       </head>
    <body>
+    <form action = "http://localhost:5000/print_house_cover_page" method = "POST">
          <h1><img src= "https://drive.google.com/uc?export=view&id=1KyfRAR13KQ8au3tKlGUaMFEc2wkErOWI" alt="PRIKAWAY"></h1>
-         
-         <div class="container" style="display: flex; height: 60px; text-align: left;">
-          <div style="width: 50%;">
-            <b>To,</b><br>
-            <b>The Principal,</b><br>
-            <b>Sainik School,Rewari</b>
-          </div>
-          <div style="flex-grow: 1; text-align: right; ">
-            {% for key, value in result.items() %}
-            {% if key == 'Date' %}
-                 <b>Date: {{ value }}</b><br>
-                {% endif %}
-            {% if key == 'Invoice No.' %}
-               <b>Invoice No.:{{ value }}  </b>
-               {% endif %}
-               {% endfor %}
-          </div>
-      </div>
-        <br>
+         <h1>House Summary</h1>
          <table border=1>
-            <th style="background-color: rgb(173, 171, 171);">Item Name</th>
-            <th style="background-color: rgb(173, 171, 171);">Price Per Unit</th>
+            <th style="background-color: rgb(173, 171, 171);">House</th>
+            <th style="background-color: rgb(173, 171, 171);">Class</th>
+            <th style="background-color: rgb(173, 171, 171);">No.of Students</th>
             <th style="background-color: rgb(173, 171, 171);">Total Quantity</th>
             <th style="background-color: rgb(173, 171, 171);">Total Price</th>
             {% for key, value in result.items() %}
-            {% if key not in('Grand Total','Word Amount','Item Total', 'Date', 'Invoice No.') %}
+            {% if key not in('Grand Total','Word Amount','Item Total', 'Date', 'Invoice No.','House') %}
             <tr >
-                <th style="width: 400px"> {{ key }} </th>
-               <td style="width: 100px"> {{ value[0] }} </td>
+                <th style="width: 100px"> {{ key }} </th>
+               <td style="width: 300px"> {{ value[0] }} </td>
                <td style="width: 120px"> {{ value[1] }} </td>
-               <td style="width: 100px"> {{ value[2] }} </td>
+               <td style="width: 120px"> {{ value[2] }} </td>
+               <td style="width: 100px"> {{ value[3] }} </td>
             </tr>
             {% endif %}
-                {% endfor %}
-           
+            {% endfor %}     
          </table>
          <br>
          
@@ -93,9 +73,10 @@
             <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE</th>
             <td><b>{{result['Grand Total']}}</b></td></tr>
             <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE IN WORDS</th>
-            <td><b>{{result['Word Amount']}} only</b></td></tr>
+            <td><b>{{result['Word Amount']}}</b></td></tr>
          </table>
-         <h5>PRINCIPAL'S SIGNATURE &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp;AUTHORISED SIGNATURE	</h5>   
-         <input id="printbtn" type = "Submit" value = "Print Bill" onclick="window.print();return false;window.location.href='/print_invoice';">
+         <h5>HOUSE MASTER'S SIGNATURE &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp;AUTHORISED SIGNATURE	</h5>  
+         <input type = "Submit" value = "Confirm details & Print Cover Page" >
+         </form>
         </body>
 </html>
