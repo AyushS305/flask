@@ -1,11 +1,13 @@
 from babel.numbers import format_currency
 from datetime import date
-import sqlite3 as sql
+import psycopg2
 from numtoword import number_to_word
 from date_format_change import *
 
+DATABASE_URL = 'postgres://root:m2FL9uhdq3uTNTuX3mui9SXA2cljGT1d@dpg-cigaj85ph6erq6jal3p0-a.oregon-postgres.render.com/prikaway'
+
 def input_template_process(out):
-    con = sql.connect('prikaway.db')
+    con = psycopg2.connect(DATABASE_URL)
     cur = con.cursor()
     cur.execute("select * from products")
     rows=cur.fetchall()
