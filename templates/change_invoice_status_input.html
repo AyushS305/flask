@@ -1,0 +1,54 @@
+<html>
+    <head>
+        <title>SELECT DATE AND HOUSE</title>
+        <style>
+         h1 {
+           text-align: center;
+           display: block;
+           border: 1px black;
+           background-color: rgb(45, 187, 26);
+           
+         }
+         img {
+           text-align: center;
+           
+         }
+         h2 {
+           text-align: center;
+         }
+         
+         body {
+           text-align: center;
+           background-color:rgb(231, 219, 48);
+
+         }
+
+         table, th, td {
+            margin-left: auto; 
+            margin-right: auto;
+            }
+         
+         </style>
+      </head>
+   <body>
+      <form action = "http://localhost:5000/change_invoice_status_confirmed" method = "POST">
+         <h1><img src=" https://drive.google.com/uc?export=view&id=1_d2XtM4F7MGepwXL-eMrpOq4_5rvoNoe" alt="PRIKAWAY" width="50",height="50"> PRIKAWAY PRIVATE LIMITED GURUGRAM</h1>
+         <h2>ENTER DETAILS</h2>
+         <table>    
+            <tr><td><b>Bill No.</b></td>
+            <td><input type ="text" name = "bill_no" id = "bill_no" required /></td></tr>
+            <tr><td><b>Date</b></td>
+            <td><input type ="date" name = "date_of_purchase" id = "date_of_purchase" required /></td></tr>
+            <tr><td><b>Class</b></td>
+            <td><input type ="number" name = "class" id = "class" required /></td></tr>
+         </table>
+         <p><b>Select Action&emsp;</b>
+            <input type="radio" id="tc_leave" name="tc_leave" value="True">
+            <b><label for="All">Set as TC/Leave</label></b>
+            <input type="radio" id="tc_leave" name="tc_leave" value="False">
+            <b><label for="Arjan">Set as NOT TC/Leave</label></b>
+         <p><input type = "Submit" value = "Submit" /></p>
+
+      </form>
+   </body>
+</html>

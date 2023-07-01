@@ -153,8 +153,28 @@ def delete_invoice_confirmed():
          result="INVOICE DOES NOT EXISTS IN DATABSE. CHECK DETAILS AND TRY AGAIN"
          return render_template("delete_invoice_confirmed.html", result=result)
 
+@app.route('/change_invoice_status_input', methods=['POST', 'GET'])
+def change_invoice_status_input():
+      return render_template("change_invoice_status_input.html")
 
-
+@app.route('/change_invoice_status_confirmed', methods=['POST', 'GET'])
+def change_invoice_status_confirmed():
+   if request.method == 'POST':
+      data=request.form.to_dict()
+      result= db_change_invoice_status(data)
+      if result=="S":
+         msg = Message(
+                "STUDENT INVOICE# "+data['bill_no']+ "SET AS TC/LEAVE "+str(data['tc_leave'])+ " IN THE DATABSE",
+                sender ='MailBot',
+                recipients = ['prikawayinvoicemailbot@gmail.com']
+               )
+         msg.body = " Student Invoice has been deleted from the database. Please note that this action is irreversible and if it was done by mistake then a new invoice needs to be generated"
+         mail.send(msg)
+         result="INVOICE# "+data['bill_no']+" MARKED AS TC/LEAVE "+str(data['tc_leave'])+ " IN THE DATABSE"
+         return render_template("change_invoice_status_confirmed.html", result=result)
+      if result=="NF":
+         result="INVOICE DOES NOT EXISTS IN DATABSE. CHECK DETAILS AND TRY AGAIN"
+         return render_template("change_invoice_status_confirmed.html", result=result)
 
 
 if __name__ == '__main__':

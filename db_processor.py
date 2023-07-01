@@ -64,4 +64,26 @@ def db_delete_invoice(dict_with_data):
                     where bill_no=? and date_of_purchase=? and class=?;""" 
             cur.execute(query,(dict_with_data['bill_no'],dict_with_data['date_of_purchase'], dict_with_data['class']))
             con.commit()
-    return "S"
+            return "S"
+
+def db_change_invoice_status(dict_with_data):
+    con = sql.connect('prikaway.db')
+    cur = con.cursor()
+    print(dict_with_data)
+    query= """  select count(distinct bill_no) from sales where bill_no=? and date_of_purchase=? and class=?;  """
+    cur.execute(query, (dict_with_data['bill_no'],dict_with_data['date_of_purchase'], dict_with_data['class']))
+    records=cur.fetchall()
+    for x in records:
+        if x[0] == 0:
+            return "NF"
+        else:
+            if dict_with_data['tc_leave'].lower() == 'true':
+                dict_with_data['tc_leave']=True
+            elif dict_with_data['tc_leave'].lower() == 'false':
+                dict_with_data['tc_leave']=False
+            query= """update sales
+                        set tc_leave=?
+                        where bill_no=? and date_of_purchase=? and class=?;""" 
+            cur.execute(query,(dict_with_data['tc_leave'],dict_with_data['bill_no'],dict_with_data['date_of_purchase'], dict_with_data['class']))
+            con.commit()
+            return "S"
