@@ -6,4 +6,3 @@ flask_mail
 datetime
 Babel
 gunicorn
-python -m pip install --upgrade pip
