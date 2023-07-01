@@ -130,5 +130,32 @@ def print_house_cover_page():
       mail.send(msg)
       return render_template("cover_page_print.html",result = result)
 
+@app.route('/delete_invoice_input', methods=['POST', 'GET'])
+def delete_invoice_input():
+      return render_template("delete_invoice_input_template.html")
+
+@app.route('/delete_invoice_confirmed', methods=['POST', 'GET'])
+def delete_invoice_confirmed():
+   if request.method == 'POST':
+      data=request.form.to_dict()
+      result= db_delete_invoice(data)
+      if result=="S":
+         msg = Message(
+                "STUDENT INVOICE# "+data['bill_no']+ "DELETED",
+                sender ='MailBot',
+                recipients = ['prikawayinvoicemailbot@gmail.com']
+               )
+         msg.body = " Student Invoice has been deleted from the database. Please note that this action is irreversible and if it was done by mistake then a new invoice needs to be generated"
+         mail.send(msg)
+         result="INVOICE# "+data['bill_no']+"DELETED FROM DATABASE"
+         return render_template("delete_invoice_confirmed.html", result=result)
+      if result=="NF":
+         result="INVOICE DOES NOT EXISTS IN DATABSE. CHECK DETAILS AND TRY AGAIN"
+         return render_template("delete_invoice_confirmed.html", result=result)
+
+
+
+
+
 if __name__ == '__main__':
    app.run(debug = True)

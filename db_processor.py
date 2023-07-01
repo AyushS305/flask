@@ -50,3 +50,18 @@ def db_search_all_house_cover(dict_with_data):
     cur.execute(query,(dict_with_data['start_date'],dict_with_data['end_date']))
     return cur.fetchall()
     
+def db_delete_invoice(dict_with_data):
+    con = sql.connect('prikaway.db')
+    cur = con.cursor()
+    query= """  select count(distinct bill_no) from sales where bill_no=? and date_of_purchase=? and class=?;  """
+    cur.execute(query, (dict_with_data['bill_no'],dict_with_data['date_of_purchase'], dict_with_data['class']))
+    records=cur.fetchall()
+    for x in records:
+        if x[0] == 0:
+            return "NF"
+        else:
+            query= """delete from sales
+                    where bill_no=? and date_of_purchase=? and class=?;""" 
+            cur.execute(query,(dict_with_data['bill_no'],dict_with_data['date_of_purchase'], dict_with_data['class']))
+            con.commit()
+    return "S"

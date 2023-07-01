@@ -1,0 +1,48 @@
+<html>
+    <head lang="en">
+        <meta charset="UTF-8">
+    <title>ENTER STUDENT INVOICE DETAILS</title>
+    <script language="JavaScript">
+        function showMessage(){
+    
+            document.getElementById('display_message').innerHTML ='DELETED INVOICE# '+ document.getElementById('bill_no').value+ "FROM DATABASE";
+        }
+    </script>
+    <style>
+     h1 {
+       text-align: center;
+       display: block;
+       border: 1px black;
+       background-color: grey;
+       
+     }
+     img {
+       text-align: center;
+       
+     }
+     h2 {
+       text-align: center;
+     }
+     
+     body {
+       text-align: center;
+       background-color:rgb(187, 87, 73);
+
+     }
+
+     table, th, td {
+        margin-left: auto; 
+        margin-right: auto;
+        text-align: left;
+        }
+     
+     </style>
+  </head>
+<body>
+    <form action = "http://localhost:5000/delete_invoice_confirmed" method = "POST">
+    <h1><img src=" https://drive.google.com/uc?export=view&id=1_d2XtM4F7MGepwXL-eMrpOq4_5rvoNoe" alt="PRIKAWAY" width="50",height="50"> PRIKAWAY PRIVATE LIMITED GURUGRAM</h1>
+    <h1><img src=" https://media.tenor.com/fye0pkiVU7gAAAAC/mirzapur-bhosdike.gif" ></h1>
+    <h2><b>{{result}}</b></h2>
+    
+ </body>
+</html>
