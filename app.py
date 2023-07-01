@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_mail import Mail, Message
-import sqlite3 as sql
 from db_processor import *
 from date_format_change import *
 from process_format import *
@@ -33,11 +32,8 @@ def homepage():
 
 @app.route('/input', methods = ['POST', 'GET'])
 def input ():
-   con = sql.connect('prikaway.db')
-   cur = con.cursor()
-   cur.execute("select item_name from products")
-   y=z=[]
-   for rows in cur.fetchall():
+   y=[]
+   for rows in db_product_search():
       y.append(rows[0])  
    return render_template('student_invoice_input_template.html', items=y)
 

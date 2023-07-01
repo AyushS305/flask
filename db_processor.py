@@ -1,8 +1,15 @@
-import sqlite3 as sql
+import psycopg2
 from datetime import datetime
+DATABASE_URL = 'postgres://root:m2FL9uhdq3uTNTuX3mui9SXA2cljGT1d@dpg-cigaj85ph6erq6jal3p0-a.oregon-postgres.render.com/prikaway'
+
+def db_product_search():
+    con = psycopg2.connect(DATABASE_URL)
+    cur = con.cursor()
+    cur.execute("select item_name from products")
+    return cur.fetchall()
 
 def db_injector(dict_with_invoice_data):
-    con = sql.connect('prikaway.db')
+    con = psycopg2.connect(DATABASE_URL)
     cur = con.cursor()
     cur1=con.cursor()
     my_date= datetime.strptime(dict_with_invoice_data['Date'], '%Y-%m-%d')
@@ -21,7 +28,7 @@ def db_injector(dict_with_invoice_data):
     return bill_no
 
 def db_search(dict_with_data):
-    con = sql.connect('prikaway.db')
+    con = psycopg2.connect(DATABASE_URL)
     cur = con.cursor()
     query=""" select item_purchased, p.item_price, sum(item_quantity), sum(total_price) 	
                     from sales s
@@ -31,7 +38,7 @@ def db_search(dict_with_data):
     return cur.fetchall()
 
 def db_search_house_cover(dict_with_data):
-    con = sql.connect('prikaway.db')
+    con = psycopg2.connect(DATABASE_URL)
     cur = con.cursor()
     query=""" select roll_no, student_name, class, sum(item_quantity), sum(total_price) 	
                 from sales s
@@ -42,7 +49,7 @@ def db_search_house_cover(dict_with_data):
     return cur.fetchall()
 
 def db_search_all_house_cover(dict_with_data):
-    con = sql.connect('prikaway.db')
+    con = psycopg2.connect(DATABASE_URL)
     cur = con.cursor()
     query=""" select house, sum(item_quantity), sum(total_price) 	
                 from sales
@@ -51,7 +58,7 @@ def db_search_all_house_cover(dict_with_data):
     return cur.fetchall()
     
 def db_delete_invoice(dict_with_data):
-    con = sql.connect('prikaway.db')
+    con = psycopg2.connect(DATABASE_URL)
     cur = con.cursor()
     query= """  select count(distinct bill_no) from sales where bill_no=? and date_of_purchase=? and class=?;  """
     cur.execute(query, (dict_with_data['bill_no'],dict_with_data['date_of_purchase'], dict_with_data['class']))
@@ -67,9 +74,8 @@ def db_delete_invoice(dict_with_data):
             return "S"
 
 def db_change_invoice_status(dict_with_data):
-    con = sql.connect('prikaway.db')
+    con = psycopg2.connect(DATABASE_URL)    
     cur = con.cursor()
-    print(dict_with_data)
     query= """  select count(distinct bill_no) from sales where bill_no=? and date_of_purchase=? and class=?;  """
     cur.execute(query, (dict_with_data['bill_no'],dict_with_data['date_of_purchase'], dict_with_data['class']))
     records=cur.fetchall()
