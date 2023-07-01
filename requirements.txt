@@ -1,7 +1,7 @@
 pandas
 flask
 flask_login
-sqlite3
+psycopg2
 flask_mail
 re
 datetime
