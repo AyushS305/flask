@@ -1,7 +1,9 @@
 pandas
 flask
 flask_login
-psycopg2
+sqlite3
 flask_mail
+re
 datetime
+csv
 Babel
