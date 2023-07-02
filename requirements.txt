@@ -6,3 +6,4 @@ flask_mail
 datetime
 Babel
 gunicorn
+regex
