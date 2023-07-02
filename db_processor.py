@@ -23,7 +23,7 @@ def db_injector(dict_with_invoice_data):
                            
             render=tuple([dict_with_invoice_data['Roll No.'],'"'+dict_with_invoice_data['Name']+'"',dict_with_invoice_data['Class'],'"'+dict_with_invoice_data['House']+'"',y[0],'"'+x+'"',dict_with_invoice_data[x][0],dict_with_invoice_data[x][2],False,'"'+dict_with_invoice_data['Date']+'"', '"'+bill_no+'"'])
             sql1='insert into sales(roll_no,student_name,class,house,item_id,item_purchased,item_quantity,total_price,tc_leave,date_of_purchase,bill_no) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
-            cur.execute(sql1%render)
+            cur.execute(sql1,render)
             con.commit()
     return bill_no
 
@@ -33,7 +33,7 @@ def db_search(dict_with_data):
     query=""" select item_purchased, p.item_price, sum(item_quantity), sum(total_price) 	
                     from sales s
                     join products p on p.id=s.item_id
-                    where date_of_purchase BETWEEN ? AND ? group by item_purchased;""" 
+                    where date_of_purchase BETWEEN %s AND %s group by item_purchased;""" 
     cur.execute(query,(dict_with_data['start_date'],dict_with_data['end_date']))
     return cur.fetchall()
 
@@ -42,7 +42,7 @@ def db_search_house_cover(dict_with_data):
     cur = con.cursor()
     query=""" select roll_no, student_name, class, sum(item_quantity), sum(total_price) 	
                 from sales s
-                where date_of_purchase BETWEEN ? AND ? AND house=?
+                where date_of_purchase BETWEEN %s AND %s AND house=%s
                 group by roll_no, student_name, class 
                 order by class,roll_no ;""" 
     cur.execute(query,(dict_with_data['start_date'],dict_with_data['end_date'],dict_with_data['House']))
@@ -53,14 +53,14 @@ def db_search_all_house_cover(dict_with_data):
     cur = con.cursor()
     query=""" select house, sum(item_quantity), sum(total_price) 	
                 from sales
-                where date_of_purchase BETWEEN ? AND ? group by house order by house;""" 
+                where date_of_purchase BETWEEN %s AND %s group by house order by house;""" 
     cur.execute(query,(dict_with_data['start_date'],dict_with_data['end_date']))
     return cur.fetchall()
     
 def db_delete_invoice(dict_with_data):
     con = psycopg2.connect(DATABASE_URL)
     cur = con.cursor()
-    query= """  select count(distinct bill_no) from sales where bill_no=? and date_of_purchase=? and class=?;  """
+    query= """  select count(distinct bill_no) from sales where bill_no=%s and date_of_purchase=%s and class=%s;  """
     cur.execute(query, (dict_with_data['bill_no'],dict_with_data['date_of_purchase'], dict_with_data['class']))
     records=cur.fetchall()
     for x in records:
@@ -68,7 +68,7 @@ def db_delete_invoice(dict_with_data):
             return "NF"
         else:
             query= """delete from sales
-                    where bill_no=? and date_of_purchase=? and class=?;""" 
+                    where bill_no=%s and date_of_purchase=%s and class=%s;""" 
             cur.execute(query,(dict_with_data['bill_no'],dict_with_data['date_of_purchase'], dict_with_data['class']))
             con.commit()
             return "S"
@@ -76,7 +76,7 @@ def db_delete_invoice(dict_with_data):
 def db_change_invoice_status(dict_with_data):
     con = psycopg2.connect(DATABASE_URL)    
     cur = con.cursor()
-    query= """  select count(distinct bill_no) from sales where bill_no=? and date_of_purchase=? and class=?;  """
+    query= """  select count(distinct bill_no) from sales where bill_no=%s and date_of_purchase=%s and class=%s;  """
     cur.execute(query, (dict_with_data['bill_no'],dict_with_data['date_of_purchase'], dict_with_data['class']))
     records=cur.fetchall()
     for x in records:
@@ -88,8 +88,8 @@ def db_change_invoice_status(dict_with_data):
             elif dict_with_data['tc_leave'].lower() == 'false':
                 dict_with_data['tc_leave']=False
             query= """update sales
-                        set tc_leave=?
-                        where bill_no=? and date_of_purchase=? and class=?;""" 
+                        set tc_leave=%s
+                        where bill_no=%s and date_of_purchase=%s and class=%s;""" 
             cur.execute(query,(dict_with_data['tc_leave'],dict_with_data['bill_no'],dict_with_data['date_of_purchase'], dict_with_data['class']))
             con.commit()
             return "S"
