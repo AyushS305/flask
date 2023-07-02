@@ -9,6 +9,7 @@ def db_product_search():
     return cur.fetchall()
 
 def db_injector(dict_with_invoice_data):
+    print(dict_with_invoice_data)
     con = psycopg2.connect(DATABASE_URL)
     cur = con.cursor()
     cur1=con.cursor()
