@@ -9,7 +9,6 @@ def db_product_search():
     return cur.fetchall()
 
 def db_injector(dict_with_invoice_data):
-    print(dict_with_invoice_data)
     con = psycopg2.connect(DATABASE_URL)
     cur = con.cursor()
     cur1=con.cursor()
@@ -29,6 +28,7 @@ def db_injector(dict_with_invoice_data):
     return bill_no
 
 def db_search(dict_with_data):
+    print(dict_with_data)
     con = psycopg2.connect(DATABASE_URL)
     cur = con.cursor()
     query=""" select item_purchased, p.item_price, sum(item_quantity), sum(total_price) 	
