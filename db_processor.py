@@ -21,7 +21,7 @@ def db_injector(dict_with_invoice_data):
                 if x==y[1]:
                     break
                            
-            render=tuple([dict_with_invoice_data['Roll No.'],'"'+dict_with_invoice_data['Name']+'"',dict_with_invoice_data['Class'],'"'+dict_with_invoice_data['House']+'"',y[0],'"'+x+'"',dict_with_invoice_data[x][0],dict_with_invoice_data[x][2],False,'"'+dict_with_invoice_data['Date']+'"', '"'+bill_no+'"'])
+            render=tuple([dict_with_invoice_data['Roll No.'],dict_with_invoice_data['Name'],dict_with_invoice_data['Class'],dict_with_invoice_data['House'],y[0],x,dict_with_invoice_data[x][0],dict_with_invoice_data[x][2],False,dict_with_invoice_data['Date'], bill_no])
             sql1='insert into sales(roll_no,student_name,class,house,item_id,item_purchased,item_quantity,total_price,tc_leave,date_of_purchase,bill_no) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
             cur.execute(sql1,render)
             con.commit()
@@ -31,10 +31,10 @@ def db_search(dict_with_data):
     print(dict_with_data)
     con = psycopg2.connect(DATABASE_URL)
     cur = con.cursor()
-    query=""" select item_purchased, p.item_price, sum(item_quantity), sum(total_price) 	
+    query=""" select s.item_purchased, p.item_price, sum(item_quantity), sum(total_price) 	
                     from sales s
                     join products p on p.id=s.item_id
-                    where date_of_purchase BETWEEN %s AND %s group by item_purchased;""" 
+                    where date_of_purchase BETWEEN %s AND %s group by s.item_purchased, p.item_price;""" 
     cur.execute(query,(dict_with_data['start_date'],dict_with_data['end_date']))
     return cur.fetchall()
 
