@@ -6,10 +6,10 @@ from date_format_change import *
 
 DATABASE_URL = 'postgres://root:m2FL9uhdq3uTNTuX3mui9SXA2cljGT1d@dpg-cigaj85ph6erq6jal3p0-a.oregon-postgres.render.com/prikaway'
 
-def input_template_process(out):
+def input_template_process(out,x):
     con = psycopg2.connect(DATABASE_URL)
     cur = con.cursor()
-    cur.execute("select * from products")
+    cur.execute('select * from products where school_id=%s',(x,))
     rows=cur.fetchall()
     ter={}
     s=q=0

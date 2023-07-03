@@ -1,3 +1,4 @@
 __pycache__
 .ipynb_checkpoints
+setup_db.py
 test.py

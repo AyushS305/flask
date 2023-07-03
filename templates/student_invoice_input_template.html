@@ -45,20 +45,10 @@
             <td><input type ="date" name = "Date" required /></td>
          </table>
          <p><b>House&emsp;</b>
-         <input type="radio" id="Arjan" name="House" value="Arjan">
-         <label for="Arjan">Arjan</label>
-         <input type="radio" id="Cariappa" name="House" value="Cariappa">
-         <label for="Cariappa">Cariappa</label>
-         <input type="radio" id="Katari" name="House" value="Katari">
-         <label for="Katari">Katari</label>
-         <input type="radio" id="Manekshaw" name="House" value="Manekshaw">
-         <label for="Manekshaw">Manekshaw</label>
-         <input type="radio" id="Pereira" name="House" value="Pereira">
-         <label for="Pereira">Pereira</label>
-         <input type="radio" id="Subroto" name="House" value="Subroto">
-         <label for="Subroto">Subroto</label>
-         <input type="radio" id="RezangLa" name="House" value="RezangLa">
-         <label for="RezangLa">RezangLa</label></p>
+         {% for value in house %}
+         <input type="radio" id="{{ value }}" name="House" value="{{ value}}">
+         <label for="{{ value }}">{{ value}}</label>
+         {% endfor %}
          <table>
             <tr>
                

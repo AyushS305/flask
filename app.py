@@ -21,9 +21,9 @@ def auth():
    if request.method == 'POST':
       result=request.form.to_dict()
       global sync_user
-      sync_user=result['username']
       result=db_auth(result)
-      if result == False:
+      sync_user=result
+      if result['flag'] == False:
          error = 'Invalid Credentials. Please try again.'
       else:
          return redirect(url_for('homepage'))     
@@ -31,31 +31,35 @@ def auth():
 
 @app.route('/homepage')
 def homepage():
-   print(sync_user)
+   
    return render_template('homepage.html', sync_user=sync_user)
    
-
 @app.route('/input', methods = ['POST', 'GET'])
 def input ():
+   h=[]
    y=[]
-   for rows in db_product_search():
+   for rows in db_house_search(sync_user['school_id']):
+      h.append(rows[0])
+   print(h)
+   for rows in db_product_search(sync_user['school_id']):
       y.append(rows[0])  
-   return render_template('student_invoice_input_template.html', items=y)
+   print(y)
+   return render_template('student_invoice_input_template.html', items=y, house=h)
 
 @app.route('/output',methods = ['POST', 'GET'])
 def output():
    if request.method == 'POST':
       out = request.form.to_dict()
       global sync
-      output=input_template_process(out)
+      output=input_template_process(out, sync_user['school_id'])
       sync=output
-      return render_template("student_invoice_output_template.html",output = output)
+      return render_template("student_invoice_output_template.html",output = output, image=sync_user['school_id'])
    
 @app.route('/print_invoice',methods = ['POST', 'GET'])
 def print_invoice():
    if request.method == 'POST':
       output=sync
-      output['Invoice No.']= db_injector(output)
+      output['Invoice No.']= db_injector(output, sync_user)
       output['Date']=change_date_format(output['Date'])
       msg = Message(
                 "STUDENT INVOICE GENERATED# "+output['Invoice No.'],
@@ -65,9 +69,9 @@ def print_invoice():
       
       msg.body = " Please see the details below."
       output=output_template_format(output)
-      msg.html = render_template("student_invoice_print_template.html", output=output)
+      msg.html = render_template("student_invoice_print_template.html", output=output, image=sync_user['school_id'])
       mail.send(msg)
-      return render_template("student_invoice_print_template.html",output = output)
+      return render_template("student_invoice_print_template.html",output = output, image=sync_user['school_id'])
    
 @app.route('/principal_bill',methods=['POST','GET'])
 def principal_bill():
