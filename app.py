@@ -40,10 +40,8 @@ def input ():
    y=[]
    for rows in db_house_search(sync_user['school_id']):
       h.append(rows[0])
-   print(h)
    for rows in db_product_search(sync_user['school_id']):
       y.append(rows[0])  
-   print(y)
    return render_template('student_invoice_input_template.html', items=y, house=h)
 
 @app.route('/output',methods = ['POST', 'GET'])
@@ -53,7 +51,8 @@ def output():
       global sync
       output=input_template_process(out, sync_user['school_id'])
       sync=output
-      return render_template("student_invoice_output_template.html",output = output, image=sync_user['school_id'])
+      print(sync_user['img_url']+'"')
+      return render_template("student_invoice_output_template.html",output = output, image=sync_user['img_url'])
    
 @app.route('/print_invoice',methods = ['POST', 'GET'])
 def print_invoice():
@@ -69,9 +68,9 @@ def print_invoice():
       
       msg.body = " Please see the details below."
       output=output_template_format(output)
-      msg.html = render_template("student_invoice_print_template.html", output=output, image=sync_user['school_id'])
+      msg.html = render_template("student_invoice_print_template.html", output=output, image=sync_user['img_url'])
       mail.send(msg)
-      return render_template("student_invoice_print_template.html",output = output, image=sync_user['school_id'])
+      return render_template("student_invoice_print_template.html",output = output, image=sync_user['img_url'])
    
 @app.route('/principal_bill',methods=['POST','GET'])
 def principal_bill():
@@ -81,11 +80,11 @@ def principal_bill():
 def generate_bill():
    if request.method == 'POST':
       out = request.form.to_dict()
-      res=db_search(out)
+      res=db_search(out, sync_user['school_id'])
       result=school_pricipal_bill_process(res)
       global sync_school_bill
       sync_school_bill=result
-      return render_template('principal_bill_output_template.html', result=result)
+      return render_template('principal_bill_output_template.html', result=result, image=sync_user['img_url'])
 
 @app.route('/print_school_bill',methods=['POST','GET'])
 def print_school_bill():
@@ -110,11 +109,11 @@ def confirm_cover_page():
    if request.method == 'POST':
          data = request.form.to_dict()
          if data['House'] == 'All':
-            result=db_search_all_house_cover(data)
+            result=db_search_all_house_cover(data, sync_user['school_id'])
             result=all_house_cover_process(result)
             result['House']='All'
          else:
-            result=db_search_house_cover(data)
+            result=db_search_house_cover(data, sync_user['school_id'])
             result=house_cover_process(result)
             result['House']=data['House']
          global sync_cover_data

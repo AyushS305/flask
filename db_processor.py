@@ -18,6 +18,9 @@ def db_auth(dict_with_data):
         else:
             result['flag']=False
             continue
+    cur.execute('select img_url from schools where id=%s',(rows[3],))
+    for y in cur.fetchall():
+        result['img_url']=y[0]
     return result
 
 def db_house_search(dict_with_data):
@@ -51,21 +54,22 @@ def db_injector(dict_with_invoice_data,set):
             con.commit()
     return bill_no
 
-def db_search(dict_with_data):
+def db_search(dict_with_data, set):
     query=""" select s.item_purchased, p.product_price, sum(item_quantity), sum(total_price) 	
                     from sales s
                     join products p on p.id=s.item_id
-                    where date_of_purchase BETWEEN %s AND %s group by s.item_purchased, p.product_price;""" 
-    cur.execute(query,(dict_with_data['start_date'],dict_with_data['end_date']))
+                    where date_of_purchase BETWEEN %s AND %s  AND school_id=%s 
+                    group by s.item_purchased, p.product_price;""" 
+    cur.execute(query,(dict_with_data['start_date'],dict_with_data['end_date'],set))
     return cur.fetchall()
 
-def db_search_house_cover(dict_with_data):
+def db_search_house_cover(dict_with_data,set):
     query=""" select roll_no, student_name, class, sum(item_quantity), sum(total_price) 	
                 from sales s
-                where date_of_purchase BETWEEN %s AND %s AND house=%s
+                where date_of_purchase BETWEEN %s AND %s AND house=%s AND school_id=%s
                 group by roll_no, student_name, class 
                 order by class,roll_no ;""" 
-    cur.execute(query,(dict_with_data['start_date'],dict_with_data['end_date'],dict_with_data['House']))
+    cur.execute(query,(dict_with_data['start_date'],dict_with_data['end_date'],dict_with_data['House'],set))
     return cur.fetchall()
 
 def db_search_all_house_cover(dict_with_data):

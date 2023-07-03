@@ -38,12 +38,7 @@
          </style>
       </head>
    <body>
-      {% if image == 1 %}
-      <h1><img src= "https://drive.google.com/uc?export=view&id=1KyfRAR13KQ8au3tKlGUaMFEc2wkErOWI" alt="PRIKAWAY"></h1>
-      {% endif %}
-      {% if image == 2 %}
-      <h1><img src=" https://drive.google.com/uc?export=view&id=1YXX6SlrTCCnVxiEB_07cNVJN89gvEItK" alt="PRIKAWAY"></h1>
-      {% endif %}
+      <h1><img src= "{{ image }}" alt="PRIKAWAY"></h1>
          <table border=1>
             <tr >
             {% for key, value in output.items() %}
