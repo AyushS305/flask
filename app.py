@@ -19,7 +19,11 @@ mail = Mail(app)
 def auth():
    error=None
    if request.method == 'POST':
-      if request.form['username']!='rukaifu@gmail.com' or request.form['password']!='12345':
+      result=request.form.to_dict()
+      global sync_user
+      sync_user=result['username']
+      result=db_auth(result)
+      if result == False:
          error = 'Invalid Credentials. Please try again.'
       else:
          return redirect(url_for('homepage'))     
@@ -27,7 +31,8 @@ def auth():
 
 @app.route('/homepage')
 def homepage():
-   return render_template('homepage.html')
+   print(sync_user)
+   return render_template('homepage.html', sync_user=sync_user)
    
 
 @app.route('/input', methods = ['POST', 'GET'])

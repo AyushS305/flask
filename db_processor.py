@@ -1,6 +1,22 @@
 import psycopg2
 from datetime import datetime
+
 DATABASE_URL = 'postgres://root:m2FL9uhdq3uTNTuX3mui9SXA2cljGT1d@dpg-cigaj85ph6erq6jal3p0-a.oregon-postgres.render.com/prikaway'
+
+def db_auth(dict_with_data):
+    con = psycopg2.connect(DATABASE_URL)
+    cur = con.cursor()
+    cur.execute("select * from users")
+    flag=True
+    for rows in cur.fetchall():
+        print(rows[1],rows[2])
+        if rows[1] == dict_with_data['username'] and rows[2] == dict_with_data['password']:
+            flag= True
+            break
+        else:
+            flag=False
+            continue
+    return flag
 
 def db_product_search():
     con = psycopg2.connect(DATABASE_URL)
