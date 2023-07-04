@@ -32,5 +32,7 @@
         <p><a href='/change_invoice_status_input'>CHANGE STUDENT INVOICE STATUS AS TC/LEAVE</a></p>
         <p><a href='/principal_bill'>GENERATE BILL FOR PRINCIPAL</a></p>
         <p><a href='/cover_page_input'>GENERATE COVER PAGES</a></p>
+        {% if sync_user['school_id'] == 2 %}
+        <p><a href='/cover_page_input'>ENTER DETAILS AND PRINT RAASHAN BILL</a></p>
     </body>
 </html>

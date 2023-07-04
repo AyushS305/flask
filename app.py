@@ -35,7 +35,6 @@ def auth():
 
 @app.route('/homepage')
 def homepage():
-   
    return render_template('homepage.html', sync_user=session)
    
 @app.route('/input', methods = ['POST', 'GET'])
