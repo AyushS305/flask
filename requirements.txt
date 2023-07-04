@@ -7,3 +7,4 @@ datetime
 Babel
 gunicorn
 regex
+Flask-Session
