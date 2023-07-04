@@ -81,10 +81,10 @@ def generate_bill():
    if request.method == 'POST':
       out = request.form.to_dict()
       res=db_search(out, sync_user['school_id'])
-      result=school_pricipal_bill_process(res)
+      result=school_pricipal_bill_process(res, sync_user['school_code'])
       global sync_school_bill
       sync_school_bill=result
-      return render_template('principal_bill_output_template.html', result=result, image=sync_user['img_url'])
+      return render_template('principal_bill_output_template.html', result=result, image=sync_user)
 
 @app.route('/print_school_bill',methods=['POST','GET'])
 def print_school_bill():
@@ -96,9 +96,9 @@ def print_school_bill():
                 recipients = ['prikawayinvoicemailbot@gmail.com']
                )
       msg.body = " Please see the details below."
-      msg.html = render_template("pricipal_bill_print_template.html", result=result)
+      msg.html = render_template("pricipal_bill_print_template.html", result=result, image=sync_user)
       mail.send(msg)
-      return render_template("pricipal_bill_print_template.html",result = result)
+      return render_template("pricipal_bill_print_template.html",result = result, image=sync_user)
    
 @app.route('/cover_page_input', methods=['POST','GET'])
 def cover_page_input():
