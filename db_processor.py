@@ -40,45 +40,50 @@ def db_injector(dict_with_invoice_data,set):
         bill_no= 'PWPL/RW/'+str(my_date.year)+'/'+str(my_date.month)+'/'+str(dict_with_invoice_data['Roll No.'])
     if set['school_id'] == 2:
         bill_no= 'PWPL/GJ/'+str(my_date.year)+'/'+str(my_date.month)+'/'+str(dict_with_invoice_data['Roll No.'])
+    cur1.execute('select id,house_name from house where school_id=%s', (set['school_id'],))  
+    for z in cur1.fetchall():
+        if dict_with_invoice_data['House']==z[1]:
+            house_id=z[0]
+            break
     for x in dict_with_invoice_data.keys():
         if x not in ['Roll No.','Name','Class','House','Date', 'Grand Total', 'Word Amount', 'Item Total']:
             cur1.execute('select id, product_name from products  where school_id=%s', (set['school_id'],))
             for y in cur1.fetchall():
                 if x==y[1]:
+                    item_id=y[0]
                     break
-            cur1.execute('select id,house_name from house where school_id=%s', (set['school_id'],))  
-            for z in cur1.fetchall():
-                if x==z[1]:
-                    break
-            render=tuple([dict_with_invoice_data['Roll No.'],dict_with_invoice_data['Name'],dict_with_invoice_data['Class'],z[0],y[0],dict_with_invoice_data[x][0],dict_with_invoice_data[x][2],False,dict_with_invoice_data['Date'], bill_no, set['school_id'],set['user_id']])
-            sql1='insert into sales(roll_no,student_name,class,house_id,item_id,item_quantity,total_price,tc_leave,date_of_purchase,bill_no,school_id,user_id) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
-            cur.execute(sql1,render)
-            con.commit()
+                render=tuple([dict_with_invoice_data['Roll No.'],dict_with_invoice_data['Name'],dict_with_invoice_data['Class'],house_id,item_id,dict_with_invoice_data[x][0],dict_with_invoice_data[x][2],False,dict_with_invoice_data['Date'], bill_no, set['school_id'],set['user_id']])
+                sql1='insert into sales(roll_no,student_name,class,house_id,item_id,item_quantity,total_price,tc_leave,date_of_purchase,bill_no,school_id,user_id) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+                cur.execute(sql1,render)
+                con.commit()
     return bill_no
 
 def db_search(dict_with_data, set):
     query=""" select p.product_name, p.product_price, sum(item_quantity), sum(total_price) 	
                     from sales s
                     join products p on p.id=s.item_id
-                    where date_of_purchase BETWEEN %s AND %s  AND s.school_id=%s 
+                    where date_of_purchase BETWEEN %s AND %s  AND s.school_id=%s AND s.tc_leave=%s
                     group by p.product_name, p.product_price;""" 
-    cur.execute(query,(dict_with_data['start_date'],dict_with_data['end_date'],set))
+    cur.execute(query,(dict_with_data['start_date'],dict_with_data['end_date'],set, dict_with_data['tc_leave']))
     return cur.fetchall()
 
 def db_search_house_cover(dict_with_data,set):
     query=""" select roll_no, student_name, class, sum(item_quantity), sum(total_price) 	
                 from sales s
-                where date_of_purchase BETWEEN %s AND %s AND house=%s AND s.school_id=%s
+                join house h on s.house_id=h.id
+                where date_of_purchase BETWEEN %s AND %s AND h.house_name=%s AND s.school_id=%s AND s.tc_leave=%s
                 group by roll_no, student_name, class 
                 order by class,roll_no ;""" 
-    cur.execute(query,(dict_with_data['start_date'],dict_with_data['end_date'],dict_with_data['House'],set))
+    cur.execute(query,(dict_with_data['start_date'],dict_with_data['end_date'],dict_with_data['House'],set, dict_with_data['tc_leave']))
     return cur.fetchall()
 
-def db_search_all_house_cover(dict_with_data):
-    query=""" select house, sum(item_quantity), sum(total_price) 	
-                from sales
-                where date_of_purchase BETWEEN %s AND %s group by house order by house;""" 
-    cur.execute(query,(dict_with_data['start_date'],dict_with_data['end_date']))
+def db_search_all_house_cover(dict_with_data,set):
+    query=""" select h.house_name, sum(item_quantity), sum(total_price) 	
+                from sales s
+                join house h on s.house_id=h.id
+                where date_of_purchase BETWEEN %s AND %s AND s.school_id=%s AND s.tc_leave=%s
+                group by h.house_name order by h.house_name;""" 
+    cur.execute(query,(dict_with_data['start_date'],dict_with_data['end_date'], set, dict_with_data['tc_leave']))
     return cur.fetchall()
     
 def db_delete_invoice(dict_with_data):

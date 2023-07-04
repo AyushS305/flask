@@ -33,8 +33,8 @@
    <body>
       <form action = "/confirm_cover_page" method = "POST">
          <h1><img src=" https://drive.google.com/uc?export=view&id=1_d2XtM4F7MGepwXL-eMrpOq4_5rvoNoe" alt="PRIKAWAY" width="50",height="50"> PRIKAWAY PRIVATE LIMITED GURUGRAM</h1>
-         <h2>SELECT DATE RANGE AND HOUSE</h2>
-         <h3>PLEASE PRINT THE COVER PAGE FOR EACH HOUSE SEPERATELY. DON'T FORGET TO PRINT THE HOUSE SUMMARY.</h3>
+         <h2>SELECT DATE RANGE, HOUSE AND STUDENT STATUS</h2>
+         <h3>&#9888; PLEASE PRINT THE COVER PAGE FOR EACH HOUSE SEPERATELY. DON'T FORGET TO PRINT THE HOUSE SUMMARY.</h3>
          <table>    
             <td><b>&emsp;Start Date</b></td>
             <td><input type ="date" name = "start_date" required /></td>
@@ -48,7 +48,11 @@
          <input type="radio" id="{{ value }}" name="House" value="{{ value }}">
          <label for="{{ value }}">{{ value}}</label>
          {% endfor %}
-            
+         <p><b>Student Status&emsp;</b>
+            <input type="radio" id="tc_leave" name="tc_leave" value="False">
+            <label for="All">Non-TC Students Only</label> 
+            <input type="radio" id="tc_leave" name="tc_leave" value="True">
+            <label for="All">TC Students Only</label>
          <p><input type = "Submit" value = "Submit" /></p>
 
       </form>

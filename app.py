@@ -91,18 +91,21 @@ def print_school_bill():
    if request.method == 'POST':
       result=sync_school_bill
       msg = Message(
-                "BILL TO SAINIK SCHOOL REWARI PRINCIPAL GENERATED# "+result['Invoice No.'],
+                "BILL TO " +(sync_user['school_name']).upper()+ " PRINCIPAL GENERATED# "+result['Invoice No.'],
                 sender ='MailBot',
                 recipients = ['prikawayinvoicemailbot@gmail.com']
                )
-      msg.body = " Please see the details below."
+      msg.body = "Please see the details below."
       msg.html = render_template("pricipal_bill_print_template.html", result=result, image=sync_user)
       mail.send(msg)
       return render_template("pricipal_bill_print_template.html",result = result, image=sync_user)
    
 @app.route('/cover_page_input', methods=['POST','GET'])
 def cover_page_input():
-   return render_template('cover_page_input.html')
+   h=[]
+   for rows in db_house_search(sync_user['school_id']):
+      h.append(rows[0])
+   return render_template('cover_page_input.html', house=h)
 
 @app.route('/confirm_cover_page', methods=['POST','GET'])
 def confirm_cover_page():
