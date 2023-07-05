@@ -1,0 +1,98 @@
+<html>
+    <head>
+        <title>CONFIRM BILLING DETAILS FOR PRINCIPAL</title>
+        <style>
+        
+         h1 {
+           text-align: center;
+           display: block;
+           
+         }
+        
+         div {
+              
+              width: 800px;
+              border: 1px solid black;
+              text-align:left;
+              display: block;
+              margin-left: auto; 
+              margin-right: auto;
+              
+            }
+
+         img {
+           text-align: center;
+           
+         }
+         h2 {
+           text-align: center;
+         }
+         
+         body {
+           text-align: center;
+           
+         }
+        
+         td{
+            text-align: center;
+         }
+         table, th {
+            margin-left: auto; 
+            margin-right: auto;
+            }
+         
+         </style>
+      </head>
+   <body>
+    <form action = "/print_raashan_bill" method = "POST">
+         <h1><img src= "{{ image['img_url'] }}" alt="PRIKAWAY"></h1>
+         
+         <div class="container" style="display: flex; height: 60px; text-align: left;">
+          <div style="width: 50%;">
+            <b>To,</b><br>
+            <b>The Principal,</b><br>
+            <b>{{ image['school_name']}}</b>
+          </div>
+          <div style="flex-grow: 1; text-align: right; ">
+            <b>Bill from {{ result['start_date'] }} to {{ result['end_date'] }}</b><br>
+            <b>Invoice No.:{{ result['Invoice No.'] }}  </b>
+          </div>
+      </div>
+        <br>
+         <table border=1>
+            <th style="background-color: rgb(173, 171, 171);">Item Name</th>
+            <th style="background-color: rgb(173, 171, 171);">Unit</th>
+            <th style="background-color: rgb(173, 171, 171);">Price Per Unit</th>
+            <th style="background-color: rgb(173, 171, 171);">GST %</th>
+            <th style="background-color: rgb(173, 171, 171);">Total Quantity</th>
+            <th style="background-color: rgb(173, 171, 171);">Total Price</th>
+            {% for key, value in result.items() %}
+            {% if key not in('Grand Total','Word Amount','Item Total', 'Date', 'Invoice No.', 'start_date', 'end_date') %}
+            <tr >
+                <th style="width: 400px"> {{ key }} </th>
+               <td style="width: 100px"> {{ value[1] }} </td>
+               <td style="width: 120px"> {{ value[2] }} </td>
+               <td style="width: 100px"> {{ value[3] }} </td>
+               <td style="width: 100px"> {{ value[0] }} </td>
+               <td style="width: 100px"> {{ value[4] }} </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+         </table>
+         <br>
+         
+         <table border=1>
+            <tr>
+            <th style="background-color: rgb(199, 196, 196);">TOTAL NO. OF ITEMS</th>
+            <td><b>{{result['Item Total']}}</b></td></tr>
+            <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE</th>
+            <td><b>{{result['Grand Total']}}</b></td></tr>
+            <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE IN WORDS</th>
+            <td><b>{{result['Word Amount']}} only</b></td>
+          </tr>        
+         </table>
+         <h5>PRINCIPAL'S SIGNATURE &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp;AUTHORISED SIGNATURE	</h5>  
+         <input type = "Submit" value = "Confirm details & Print Bill" >
+         </form>
+        </body>
+</html>

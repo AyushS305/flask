@@ -44,7 +44,7 @@ def input ():
    for rows in db_house_search(session['school_id']):
       h.append(rows[0])
    for rows in db_product_search(session['school_id']):
-      y.append(rows[0])  
+      y.append(rows[1])  
    return render_template('student_invoice_input_template.html', items=y, house=h)
 
 @app.route('/output',methods = ['POST', 'GET'])
@@ -186,6 +186,41 @@ def change_invoice_status_confirmed():
          result="INVOICE DOES NOT EXISTS IN DATABSE. CHECK DETAILS AND TRY AGAIN"
          return render_template("change_invoice_status_confirmed.html", result=result)
 
+@app.route('/select_raashan_tender', methods=['POST', 'GET'])
+def select_raashan_tender():
+   return render_template('select_raashan_tender.html')
+
+@app.route('/input_raashan_details', methods=['POST', 'GET'])
+def input_raashan_details():
+   if request.method == 'POST':
+      data=request.form.to_dict()
+      session['tender_no']=data['tender']
+      items=db_raashan_product_search(data['tender'])
+      return render_template('input_raashan_details.html', items=items)
+   
+@app.route('/confirm_raashan_details', methods=['POST', 'GET'])
+def confirm_raashan_details():
+   if request.method == 'POST':
+      data=request.form.to_dict()
+      result=check_raashan_details(data, session['tender_no'])
+      global sync_raashan
+      sync_raashan=result
+      return render_template('confirm_raashan_details.html', result=result, image=session)
+
+@app.route('/print_raashan_bill', methods=['POST', 'GET'])
+def print_raashan_bill():
+   if request.method == 'POST':
+      result=sync_raashan
+      save_raashan_line_items(result, session['tender_no'])
+      msg = Message(
+                "RAASHAN BILL TO SAINIK SCHOOL GOPALGANJ PRINCIPAL GENERATED# "+str(result['Invoice No.']),
+                sender ='MailBot',
+                recipients = ['prikawayinvoicemailbot@gmail.com']
+               )
+      msg.body = " Please see the details below."
+      msg.html = render_template("print_raashan_bill.html", result=result, image=session)
+      mail.send(msg)
+      return render_template('print_raashan_bill.html', result=result, image=session)
 
 if __name__ == '__main__':
    app.run(debug = True)

@@ -1,16 +1,11 @@
 from babel.numbers import format_currency
 from datetime import date
-import psycopg2
 from numtoword import number_to_word
 from date_format_change import *
+from db_processor import *
 
-DATABASE_URL = 'postgres://root:m2FL9uhdq3uTNTuX3mui9SXA2cljGT1d@dpg-cigaj85ph6erq6jal3p0-a.oregon-postgres.render.com/prikaway'
-
-def input_template_process(out,x):
-    con = psycopg2.connect(DATABASE_URL)
-    cur = con.cursor()
-    cur.execute('select * from products where school_id=%s',(x,))
-    rows=cur.fetchall()
+def input_template_process(out,x):  
+    rows=db_product_search(x)
     ter={}
     s=q=0
     for x in out.keys():
@@ -78,3 +73,24 @@ def all_house_cover_process(res):
    result['Item Total']=q
    result['Word Amount']=number_to_word(s)
    return result
+
+def check_raashan_details(data,z):
+   result=db_raashan_product_search(z)
+   ter={}
+   s=q=0
+   for x in data:
+      if data[x] == '':
+         continue
+      else:
+         for y in result:
+            if x == y[1]:
+               ter[x]=([data[x],y[2],y[3],y[4],round(float(data[x])*y[3]*(1+y[4]/100),2)])
+               s+=round(float(data[x])*y[3]*(1+y[4]/100),2)
+               q+=int(data[x])
+   ter['Grand Total']=s
+   ter['Item Total']=q
+   ter['Word Amount']=number_to_word(s)
+   ter['Invoice No.']=abs(hash('PWPL/GJ/'+str(z)+'/'+str(date.today().year)+'/'+str(date.today().month)+'/'+str(q)))
+   ter['start_date']= change_date_format(data['start_date'])
+   ter['end_date']= change_date_format(data['end_date'])
+   return(ter)

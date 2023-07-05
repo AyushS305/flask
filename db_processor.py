@@ -30,7 +30,7 @@ def db_house_search(dict_with_data):
     return cur.fetchall()
 
 def db_product_search(dict_with_data):
-    cur.execute('select product_name from products where school_id=%s', (dict_with_data,))
+    cur.execute('select * from products where school_id=%s', (dict_with_data,))
     return cur.fetchall()
 
 def db_injector(dict_with_invoice_data,set):
@@ -118,3 +118,21 @@ def db_change_invoice_status(dict_with_data):
             cur.execute(query,(dict_with_data['tc_leave'],dict_with_data['bill_no'],dict_with_data['date_of_purchase'], dict_with_data['class']))
             con.commit()
             return "S"
+        
+def db_raashan_product_search(data):
+    cur.execute('select * from raashan_products where tender_number=%s',(data,))
+    return cur.fetchall()
+
+def save_raashan_line_items(data,z):
+    cur.execute('select * from raashan_products where tender_number=%s',(z,))
+    for x in data:
+        if data[x] == '':
+            continue
+        else:
+            if x not in ('Grand Total','Word Amount','Item Total', 'Date', 'Invoice No.', 'start_date', 'end_date'):
+                for y in cur.fetchall():
+                    if x == y[1]:
+                        render= tuple([data['Invoice No.'], y[0], y[5], data[x], data['start_date'], data['end_date'], round(float(data[x][0])*y[3]*(1+y[4]/100),2)])
+                        query="""insert into raashan_sales 
+                        (invoice_no, product_id, tender_no, quantity, start_date, end_date, total_price, created_at)
+                        values(%s,%s,%s,%s,%s,%s,%s,%s)"""
