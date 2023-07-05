@@ -125,6 +125,7 @@ def db_raashan_product_search(data):
 
 def save_raashan_line_items(data,z):
     cur.execute('select * from raashan_products where tender_number=%s',(z,))
+    cur1=con.cursor()
     for x in data:
         if data[x] == '':
             continue
@@ -136,4 +137,6 @@ def save_raashan_line_items(data,z):
                         query="""insert into raashan_sales 
                         (invoice_no, product_id, tender_no, quantity, start_date, end_date, total_price, created_at)
                         values(%s,%s,%s,%s,%s,%s,%s,%s)"""
+                        cur1.execute(query,render)
                         con.commit()
+                        break
