@@ -136,3 +136,4 @@ def save_raashan_line_items(data,z):
                         query="""insert into raashan_sales 
                         (invoice_no, product_id, tender_no, quantity, start_date, end_date, total_price, created_at)
                         values(%s,%s,%s,%s,%s,%s,%s,%s)"""
+                        con.commit()
