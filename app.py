@@ -212,6 +212,8 @@ def print_raashan_bill():
    if request.method == 'POST':
       result=sync_raashan
       save_raashan_line_items(result, session['tender_no'])
+      result['start_date']=change_date_format(result['start_date'])
+      result['end_date']=change_date_format(result['end_date'])
       msg = Message(
                 "RAASHAN BILL TO SAINIK SCHOOL GOPALGANJ PRINCIPAL GENERATED# "+str(result['Invoice No.']),
                 sender ='MailBot',

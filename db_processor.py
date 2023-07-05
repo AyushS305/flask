@@ -126,17 +126,12 @@ def db_raashan_product_search(data):
 def save_raashan_line_items(data,z):
     cur.execute('select * from raashan_products where tender_number=%s',(z,))
     cur1=con.cursor()
+    print(data)
     for x in data:
-        if data[x] == '':
-            continue
-        else:
-            if x not in ('Grand Total','Word Amount','Item Total', 'Date', 'Invoice No.', 'start_date', 'end_date'):
-                for y in cur.fetchall():
-                    if x == y[1]:
-                        render= tuple([data['Invoice No.'], y[0], y[5], data[x], data['start_date'], data['end_date'], round(float(data[x][0])*y[3]*(1+y[4]/100),2)])
-                        query="""insert into raashan_sales 
-                        (invoice_no, product_id, tender_no, quantity, start_date, end_date, total_price, created_at)
-                        values(%s,%s,%s,%s,%s,%s,%s,%s)"""
-                        cur1.execute(query,render)
-                        con.commit()
-                        break
+        if x not in ('Grand Total','Word Amount','Item Total', 'Date', 'Invoice No.', 'start_date', 'end_date'):
+            render= tuple([data['Invoice No.'], data[x][5], z,data[x][0], data['start_date'], data['end_date'], data[x][4]])
+            query="""insert into raashan_sales 
+            (invoice_no, product_id, tender_no, quantity, start_date, end_date, total_price)
+            values(%s,%s,%s,%s,%s,%s,%s)"""
+            cur1.execute(query,render)
+            con.commit()
