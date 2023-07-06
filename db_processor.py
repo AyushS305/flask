@@ -120,13 +120,12 @@ def db_change_invoice_status(dict_with_data):
             return "S"
         
 def db_raashan_product_search(data):
-    cur.execute('select * from raashan_products where tender_number=%s',(data,))
+    cur.execute('select * from raashan_products where tender_number=%s order by tender_number,tender_s_no',(data,))
     return cur.fetchall()
 
 def save_raashan_line_items(data,z):
-    cur.execute('select * from raashan_products where tender_number=%s',(z,))
+    cur.execute('select * from raashan_products where tender_number=%s order by tender_number,tender_s_no',(z,))
     cur1=con.cursor()
-    print(data)
     for x in data:
         if x not in ('Grand Total','Word Amount','Item Total', 'Date', 'Invoice No.', 'start_date', 'end_date'):
             render= tuple([data['Invoice No.'], data[x][5], z,data[x][0], data['start_date'], data['end_date'], data[x][4]])

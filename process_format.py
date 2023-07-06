@@ -84,8 +84,8 @@ def check_raashan_details(data,z):
       else:
          for y in result:
             if x == y[1]:
-               ter[x]=([data[x],y[2],y[3],y[4],round(float(data[x])*y[3]*(1+y[4]/100),2),y[0]])
-               s+=round(float(data[x])*y[3]*(1+y[4]/100),2)           
+               ter[x]=([data[x],y[2],y[3],y[4],round(float(data[x])*(y[3]+y[4]),2),y[0]])
+               s+=round(float(data[x])*(y[3]+y[4]),2)          
    ter['Grand Total']=s
    ter['Word Amount']=number_to_word(s)
    ter['Invoice No.']=abs(hash('PWPL/GJ/'+str(z)+'/'+str(date.today().year)+'/'+str(date.today().month)+'/'+str(s)))
