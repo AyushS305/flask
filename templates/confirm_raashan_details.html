@@ -61,6 +61,7 @@
       </div>
         <br>
          <table border=1>
+            <th style="background-color: rgb(173, 171, 171);">Tender S.No.</th>
             <th style="background-color: rgb(173, 171, 171);">Item Name</th>
             <th style="background-color: rgb(173, 171, 171);">Unit</th>
             <th style="background-color: rgb(173, 171, 171);">Price Per Unit</th>
@@ -68,9 +69,10 @@
             <th style="background-color: rgb(173, 171, 171);">Total Quantity</th>
             <th style="background-color: rgb(173, 171, 171);">Total Price</th>
             {% for key, value in result.items() %}
-            {% if key not in('Grand Total','Word Amount','Item Total', 'Date', 'Invoice No.', 'start_date', 'end_date') %}
+            {% if key not in('Grand Total','Word Amount', 'Date', 'Invoice No.', 'start_date', 'end_date') %}
             <tr >
-                <th style="width: 400px"> {{ key }} </th>
+              <td style="width: 100px"> {{ value[5] }} </td>
+              <th style="width: 400px"> {{ key }} </th>
                <td style="width: 100px"> {{ value[1] }} </td>
                <td style="width: 120px"> {{ value[2] }} </td>
                <td style="width: 100px"> {{ value[3] }} </td>
@@ -84,8 +86,6 @@
          
          <table border=1>
             <tr>
-            <th style="background-color: rgb(199, 196, 196);">TOTAL NO. OF ITEMS</th>
-            <td><b>{{result['Item Total']}}</b></td></tr>
             <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE</th>
             <td><b>{{result['Grand Total']}}</b></td></tr>
             <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE IN WORDS</th>

@@ -77,7 +77,7 @@ def all_house_cover_process(res):
 def check_raashan_details(data,z):
    result=db_raashan_product_search(z)
    ter={}
-   s=q=0
+   s=0
    for x in data:
       if data[x] == '':
          continue
@@ -85,12 +85,10 @@ def check_raashan_details(data,z):
          for y in result:
             if x == y[1]:
                ter[x]=([data[x],y[2],y[3],y[4],round(float(data[x])*y[3]*(1+y[4]/100),2),y[0]])
-               s+=round(float(data[x])*y[3]*(1+y[4]/100),2)
-               q+=int(data[x])
+               s+=round(float(data[x])*y[3]*(1+y[4]/100),2)           
    ter['Grand Total']=s
-   ter['Item Total']=q
    ter['Word Amount']=number_to_word(s)
-   ter['Invoice No.']=abs(hash('PWPL/GJ/'+str(z)+'/'+str(date.today().year)+'/'+str(date.today().month)+'/'+str(q)))
+   ter['Invoice No.']=abs(hash('PWPL/GJ/'+str(z)+'/'+str(date.today().year)+'/'+str(date.today().month)+'/'+str(s)))
    ter['start_date']= data['start_date']
    ter['end_date']= data['end_date']
    return(ter)
