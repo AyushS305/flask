@@ -8,3 +8,4 @@ Babel
 gunicorn
 regex
 Flask-Session
+requests
