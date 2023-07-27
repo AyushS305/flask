@@ -38,7 +38,13 @@ def auth():
 def homepage():
    send_message("user " + session['username']+ " logged in")
    return render_template('homepage.html', sync_user=session)
-   
+
+@app.route('/logout')
+def logout():
+   send_message("user " + session['username']+ " logged out")
+   session.pop('username',None)
+   return redirect(url_for('auth'))
+
 @app.route('/input', methods = ['POST', 'GET'])
 def input ():
    h=[]
