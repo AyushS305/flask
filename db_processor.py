@@ -1,7 +1,11 @@
 import psycopg2
 from datetime import datetime
+import os
+from dotenv import load_dotenv
 
-DATABASE_URL = 'postgres://root:m2FL9uhdq3uTNTuX3mui9SXA2cljGT1d@dpg-cigaj85ph6erq6jal3p0-a.oregon-postgres.render.com/prikaway'
+load_dotenv()
+
+DATABASE_URL = os.environ['DATABASE_URL']
 con = psycopg2.connect(DATABASE_URL)
 cur = con.cursor()
 

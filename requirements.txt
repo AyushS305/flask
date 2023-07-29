@@ -9,3 +9,4 @@ gunicorn
 regex
 Flask-Session
 requests
+python-dotenv
