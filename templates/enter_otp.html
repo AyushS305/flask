@@ -1,0 +1,38 @@
+<html>
+    <head>
+        <title>ENTER ACCESS CODE</title>
+        <link rel="icon" type="image/x-icon" href="https://drive.google.com/uc?export=view&id=1jjhDnX3tIAtRkBU_fUzQNF1yn49OYsdh">
+        <style>
+            h1 {
+              text-align: center;
+              display: block;
+              border: 1px black;
+              background-color: darkblue;
+              color: white;
+              
+            }
+            img {
+              text-align: center;
+              
+            }
+
+            body {
+           text-align: center;
+           background-color:rgb(204, 143, 196);
+
+         }
+
+    </style>
+    </head>
+    <body>
+        <form action = "" method = "POST">
+        <h1 align="center"><img src=" https://drive.google.com/uc?export=view&id=1_d2XtM4F7MGepwXL-eMrpOq4_5rvoNoe" alt="PRIKAWAY" width="50",height="50"> PRIKAWAY PRIVATE LIMITED GURUGRAM</h1>
+        <p align="right"><a href="/homepage">Homepage</a></p>
+        <h2>ENTER ACCESS CODE</h2>
+        <td><input type = "number" name = "otp"/></td>
+        <p><input type = "Submit" value = "Submit" /></p>
+    {% if error %}
+        <p class="error"><strong>Error:</strong> {{ error }}
+      {% endif %}
+    </form>
+</body>

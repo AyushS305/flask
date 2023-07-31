@@ -247,5 +247,20 @@ def print_raashan_bill():
       send_message(ping)
       return render_template('print_raashan_bill.html', result=result, image=session)
 
+@app.route('/analytics', methods=['POST','GET'])
+def analytics():
+   error=None
+   if request.method == 'POST':
+      data=request.form.to_dict()
+      if data['otp'] == str(8092):
+         return redirect(url_for('tableau_dashboard'))
+      else:
+         error = 'Invalid Credentials. Please try again.'
+   return render_template('enter_otp.html', error=error)
+
+@app.route('/tableau_dashboard', methods=['POST','GET'])
+def tableau_dashboard():
+   return render_template('tableau.html')
+
 if __name__ == '__main__':
    app.run(debug = True)
