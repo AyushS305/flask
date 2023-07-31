@@ -35,12 +35,12 @@ def auth():
       if result['flag'] == False:
          error = 'Invalid Credentials. Please try again.'
       else:
+         send_message("user " + session['username']+ " logged in")
          return redirect(url_for('homepage'))     
    return render_template('login.html', error=error)
 
 @app.route('/homepage')
 def homepage():
-   send_message("user " + session['username']+ " logged in")
    return render_template('homepage.html', sync_user=session)
 
 @app.route('/logout')
