@@ -253,14 +253,14 @@ def analytics():
    if request.method == 'POST':
       data=request.form.to_dict()
       if data['otp'] == str(8092):
-         return redirect(url_for('tableau_dashboard'))
+         return redirect(url_for('looker_dashboard'))
       else:
          error = 'Invalid Credentials. Please try again.'
    return render_template('enter_otp.html', error=error)
 
-@app.route('/tableau_dashboard', methods=['POST','GET'])
-def tableau_dashboard():
-   return render_template('tableau.html')
+@app.route('/looker_dashboard', methods=['POST','GET'])
+def looker_dashboard():
+   return render_template('looker.html')
 
 if __name__ == '__main__':
    app.run(debug = True)
