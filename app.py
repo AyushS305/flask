@@ -5,24 +5,21 @@ from date_format_change import *
 from process_format import *
 from flask_session import Session
 from telegram_messenger import *
-import os
-import shutil
-from dotenv import load_dotenv
-
-load_dotenv()
+from datetime import timedelta
 
 app = Flask(__name__)
-mail = Mail(app)
-app.config["SESSION_PERMANENT"] = False
+app.config.from_prefixed_env()
+app.config['SECRET_KEY']
+app.config['MAIL_SERVER']
+app.config['MAIL_PORT'] 
+app.config['MAIL_USERNAME']
+app.config['MAIL_PASSWORD']
 app.config["SESSION_TYPE"] = "filesystem"
-Session(app)
-app.secret_key = os.environ['APP_SECRET_KEY']
-app.config['MAIL_SERVER']=os.environ['MAIL_SERVER']
-app.config['MAIL_PORT'] = os.environ['MAIL_PORT']
-app.config['MAIL_USERNAME'] = os.environ['MAIL_USERNAME']
-app.config['MAIL_PASSWORD'] = os.environ['MAIL_PASSWORD']
+app.config['SESSION_PERMANENT'] = True
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=5)
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
+Session(app)
 mail = Mail(app)
 
 @app.route('/', methods = ['POST', 'GET'])
@@ -48,7 +45,6 @@ def homepage():
 def logout():
    send_message("user " + session['username']+ " logged out")
    session.pop('username',None)
-   shutil.rmtree(os.getcwd()+'\\flask_session')
    return redirect(url_for('auth'))
 
 @app.route('/input', methods = ['POST', 'GET'])
