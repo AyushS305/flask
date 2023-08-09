@@ -6,6 +6,7 @@ from process_format import *
 from flask_session import Session
 from telegram_messenger import *
 import os
+import shutil
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -47,6 +48,7 @@ def homepage():
 def logout():
    send_message("user " + session['username']+ " logged out")
    session.pop('username',None)
+   shutil.rmtree(os.getcwd()+'\\flask_session')
    return redirect(url_for('auth'))
 
 @app.route('/input', methods = ['POST', 'GET'])
