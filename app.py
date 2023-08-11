@@ -6,14 +6,17 @@ from process_format import *
 from flask_session import Session
 from telegram_messenger import *
 from datetime import timedelta
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 app = Flask(__name__)
-app.config.from_prefixed_env()
-app.config['SECRET_KEY']
-app.config['MAIL_SERVER']
-app.config['MAIL_PORT'] 
-app.config['MAIL_USERNAME']
-app.config['MAIL_PASSWORD']
+app.config['SECRET_KEY']=os.environ['SECRET_KEY']
+app.config['MAIL_SERVER']=os.environ['MAIL_SERVER']
+app.config['MAIL_PORT']=os.environ['MAIL_PORT']
+app.config['MAIL_USERNAME']=os.environ['MAIL_USERNAME']
+app.config['MAIL_PASSWORD']= os.environ['MAIL_PASSWORD']
 app.config["SESSION_TYPE"] = "filesystem"
 app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=5)

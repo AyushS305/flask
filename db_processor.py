@@ -7,10 +7,21 @@ load_dotenv()
 
 DATABASE_URL = os.environ['DATABASE_URL']
 con = psycopg2.connect(DATABASE_URL)
-cur = con.cursor()
+cur=con.cursor()
+
+def pgsql():
+    con = psycopg2.connect(DATABASE_URL)
+    cur=con.cursor()
+    return cur
 
 def db_auth(dict_with_data):
-    cur.execute("select * from users")
+    cur=pgsql()
+    
+    try:
+        cur.execute("select * from users")
+    except Exception:
+        cur=pgsql()
+        
     result={}
     for rows in cur.fetchall():
         if rows[1] == dict_with_data['username'] and rows[2] == dict_with_data['password']:
@@ -22,7 +33,11 @@ def db_auth(dict_with_data):
         else:
             result['flag']=False
             continue
-    cur.execute('select * from schools where id=%s',(rows[3],))
+    try:
+        cur.execute('select * from schools where id=%s',(rows[3],))
+    except Exception:
+        cur=pgsql()
+
     for y in cur.fetchall():
         result['img_url']=y[2]
         result['school_name']=y[1]
@@ -30,11 +45,19 @@ def db_auth(dict_with_data):
     return result
 
 def db_house_search(dict_with_data):
-    cur.execute('SELECT house_name from house where school_id=%s', (dict_with_data,))
+    cur=pgsql()
+    try:
+        cur.execute('SELECT house_name from house where school_id=%s', (dict_with_data,))
+    except Exception:
+        cur=pgsql()    
     return cur.fetchall()
 
 def db_product_search(dict_with_data):
-    cur.execute('select * from products where school_id=%s', (dict_with_data,))
+    cur=pgsql()
+    try:
+        cur.execute('select * from products where school_id=%s', (dict_with_data,))
+    except Exception:
+        cur=pgsql() 
     return cur.fetchall()
 
 def db_injector(dict_with_invoice_data,set):
@@ -63,12 +86,16 @@ def db_injector(dict_with_invoice_data,set):
     return bill_no
 
 def db_search(dict_with_data, set):
+    cur=pgsql()
     query=""" select p.product_name, p.product_price, sum(item_quantity), sum(total_price) 	
                     from sales s
                     join products p on p.id=s.item_id
                     where date_of_purchase BETWEEN %s AND %s  AND s.school_id=%s AND s.tc_leave=%s
                     group by p.product_name, p.product_price;""" 
-    cur.execute(query,(dict_with_data['start_date'],dict_with_data['end_date'],set, dict_with_data['tc_leave']))
+    try:
+        cur.execute(query,(dict_with_data['start_date'],dict_with_data['end_date'],set, dict_with_data['tc_leave']))
+    except Exception:
+        cur=pgsql() 
     return cur.fetchall()
 
 def db_search_house_cover(dict_with_data,set):
