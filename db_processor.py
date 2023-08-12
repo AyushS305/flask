@@ -4,26 +4,31 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-
 DATABASE_URL = os.environ['DATABASE_URL']
-con = psycopg2.connect(DATABASE_URL)
-cur=con.cursor()
 
-def pgsql():
-    con = psycopg2.connect(DATABASE_URL)
-    cur=con.cursor()
-    return cur
+class pgsql:
+    def __init__(self):
+        self.con=psycopg2.connect(DATABASE_URL)
+        self.cur=self.con.cursor()
+
+    def query_execute(self,query,parameter):
+        global res
+        try:
+            self.cur.execute(query,parameter)
+            self.con.commit()
+            res=self.cur.fetchall()
+            self.cur.close()
+            self.con.close()
+        except Exception: 
+            self.con=psycopg2.connect(DATABASE_URL)
+            self.cur=self.con.cursor()
+        return res
 
 def db_auth(dict_with_data):
     cur=pgsql()
-    
-    try:
-        cur.execute("select * from users")
-    except Exception:
-        cur=pgsql()
-        
+    p=cur.query_execute("select * from users",None)      
     result={}
-    for rows in cur.fetchall():
+    for rows in p:
         if rows[1] == dict_with_data['username'] and rows[2] == dict_with_data['password']:
             result['user_id']=rows[0]
             result['school_id']=rows[3]
@@ -33,12 +38,10 @@ def db_auth(dict_with_data):
         else:
             result['flag']=False
             continue
-    try:
-        cur.execute('select * from schools where id=%s',(rows[3],))
-    except Exception:
-        cur=pgsql()
+    cur=pgsql()
+    p=cur.query_execute('select * from schools where id=%s',(rows[3],))
 
-    for y in cur.fetchall():
+    for y in p:
         result['img_url']=y[2]
         result['school_name']=y[1]
         result['school_code']=y[3]
@@ -46,43 +49,38 @@ def db_auth(dict_with_data):
 
 def db_house_search(dict_with_data):
     cur=pgsql()
-    try:
-        cur.execute('SELECT house_name from house where school_id=%s', (dict_with_data,))
-    except Exception:
-        cur=pgsql()    
-    return cur.fetchall()
+    return cur.query_execute('SELECT house_name from house where school_id=%s', (dict_with_data,))
 
 def db_product_search(dict_with_data):
     cur=pgsql()
-    try:
-        cur.execute('select * from products where school_id=%s', (dict_with_data,))
-    except Exception:
-        cur=pgsql() 
-    return cur.fetchall()
+    return cur.query_execute('select * from products where school_id=%s', (dict_with_data,))
 
 def db_injector(dict_with_invoice_data,set):
-    cur1=con.cursor()
+    cur1=pgsql()
     my_date= datetime.strptime(dict_with_invoice_data['Date'], '%Y-%m-%d')
+
     if set['school_id'] == 1:
         bill_no= 'PWPL/RW/'+str(my_date.year)+'/'+str(my_date.month)+'/'+str(dict_with_invoice_data['Roll No.'])
     if set['school_id'] == 2:
         bill_no= 'PWPL/GJ/'+str(my_date.year)+'/'+str(my_date.month)+'/'+str(dict_with_invoice_data['Roll No.'])
-    cur1.execute('select id,house_name from house where school_id=%s', (set['school_id'],))  
-    for z in cur1.fetchall():
+    p=cur1.query_execute('select id,house_name from house where school_id=%s', (set['school_id'],))
+    
+    for z in p:
         if dict_with_invoice_data['House']==z[1]:
             house_id=z[0]
             break
+    cur1=pgsql()    
     for x in dict_with_invoice_data.keys():
         if x not in ['Roll No.','Name','Class','House','Date', 'Grand Total', 'Word Amount', 'Item Total']:
-            cur1.execute('select id, product_name from products  where school_id=%s', (set['school_id'],))
-            for y in cur1.fetchall():
+            p=cur1.query_execute('select id, product_name from products  where school_id=%s', (set['school_id'],))           
+            for y in p:
                 if x==y[1]:
                     item_id=y[0]
                     break
             render=tuple([dict_with_invoice_data['Roll No.'],dict_with_invoice_data['Name'],dict_with_invoice_data['Class'],house_id,item_id,dict_with_invoice_data[x][0],dict_with_invoice_data[x][2],False,dict_with_invoice_data['Date'], bill_no, set['school_id'],set['user_id']])
             sql1='insert into sales(roll_no,student_name,class,house_id,item_id,item_quantity,total_price,tc_leave,date_of_purchase,bill_no,school_id,user_id) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
-            cur.execute(sql1,render)
-    con.commit()
+            cur=pgsql()
+            cur.query_execute(sql1,render)    
     return bill_no
 
 def db_search(dict_with_data, set):
@@ -92,49 +90,48 @@ def db_search(dict_with_data, set):
                     join products p on p.id=s.item_id
                     where date_of_purchase BETWEEN %s AND %s  AND s.school_id=%s AND s.tc_leave=%s
                     group by p.product_name, p.product_price;""" 
-    try:
-        cur.execute(query,(dict_with_data['start_date'],dict_with_data['end_date'],set, dict_with_data['tc_leave']))
-    except Exception:
-        cur=pgsql() 
-    return cur.fetchall()
+
+    return cur.query_execute(query,(dict_with_data['start_date'],dict_with_data['end_date'],set, dict_with_data['tc_leave'])) 
 
 def db_search_house_cover(dict_with_data,set):
+    cur=pgsql()
     query=""" select roll_no, student_name, class, sum(item_quantity), sum(total_price) 	
                 from sales s
                 join house h on s.house_id=h.id
                 where date_of_purchase BETWEEN %s AND %s AND h.house_name=%s AND s.school_id=%s AND s.tc_leave=%s
                 group by roll_no, student_name, class 
                 order by class,roll_no ;""" 
-    cur.execute(query,(dict_with_data['start_date'],dict_with_data['end_date'],dict_with_data['House'],set, dict_with_data['tc_leave']))
-    return cur.fetchall()
+    
+    return cur.query_execute(query,(dict_with_data['start_date'],dict_with_data['end_date'],dict_with_data['House'],set, dict_with_data['tc_leave']))
 
 def db_search_all_house_cover(dict_with_data,set):
+    cur=pgsql()
     query=""" select h.house_name, sum(item_quantity), sum(total_price) 	
                 from sales s
                 join house h on s.house_id=h.id
                 where date_of_purchase BETWEEN %s AND %s AND s.school_id=%s AND s.tc_leave=%s
                 group by h.house_name order by h.house_name;""" 
-    cur.execute(query,(dict_with_data['start_date'],dict_with_data['end_date'], set, dict_with_data['tc_leave']))
-    return cur.fetchall()
+
+    return cur.query_execute(query,(dict_with_data['start_date'],dict_with_data['end_date'], set, dict_with_data['tc_leave']))
     
 def db_delete_invoice(dict_with_data):
+    cur=pgsql()
     query= """  select count(distinct bill_no) from sales where bill_no=%s and date_of_purchase=%s and class=%s;  """
-    cur.execute(query, (dict_with_data['bill_no'],dict_with_data['date_of_purchase'], dict_with_data['class']))
-    records=cur.fetchall()
+    records=cur.query_execute(query, (dict_with_data['bill_no'],dict_with_data['date_of_purchase'], dict_with_data['class']))
     for x in records:
         if x[0] == 0:
             return "NF"
         else:
             query= """delete from sales
                     where bill_no=%s and date_of_purchase=%s and class=%s;""" 
-            cur.execute(query,(dict_with_data['bill_no'],dict_with_data['date_of_purchase'], dict_with_data['class']))
-            con.commit()
+            cur=pgsql()
+            cur.query_execute(query,(dict_with_data['bill_no'],dict_with_data['date_of_purchase'], dict_with_data['class']))
             return "S"
 
 def db_change_invoice_status(dict_with_data):
+    cur=pgsql()
     query= """  select count(distinct bill_no) from sales where bill_no=%s and date_of_purchase=%s and class=%s;  """
-    cur.execute(query, (dict_with_data['bill_no'],dict_with_data['date_of_purchase'], dict_with_data['class']))
-    records=cur.fetchall()
+    records=cur.query_execute(query, (dict_with_data['bill_no'],dict_with_data['date_of_purchase'], dict_with_data['class']))
     for x in records:
         if x[0] == 0:
             return "NF"
@@ -146,22 +143,20 @@ def db_change_invoice_status(dict_with_data):
             query= """update sales
                         set tc_leave=%s
                         where bill_no=%s and date_of_purchase=%s and class=%s;""" 
-            cur.execute(query,(dict_with_data['tc_leave'],dict_with_data['bill_no'],dict_with_data['date_of_purchase'], dict_with_data['class']))
-            con.commit()
+            cur=pgsql()
+            cur.query_execute(query,(dict_with_data['tc_leave'],dict_with_data['bill_no'],dict_with_data['date_of_purchase'], dict_with_data['class']))
             return "S"
         
 def db_raashan_product_search(data):
-    cur.execute('select * from raashan_products where tender_number=%s order by tender_number,tender_s_no',(data,))
-    return cur.fetchall()
+    cur=pgsql()
+    return cur.query_execute('select * from raashan_products where tender_number=%s order by tender_number,tender_s_no',(data,))
 
 def save_raashan_line_items(data,z):
-    cur.execute('select * from raashan_products where tender_number=%s order by tender_number,tender_s_no',(z,))
-    cur1=con.cursor()
     for x in data:
         if x not in ('Grand Total','Word Amount','Item Total', 'Date', 'Invoice No.', 'start_date', 'end_date'):
             render= tuple([data['Invoice No.'], data[x][5], z,data[x][0], data['start_date'], data['end_date'], data[x][4]])
             query="""insert into raashan_sales 
             (invoice_no, product_id, tender_no, quantity, start_date, end_date, total_price)
             values(%s,%s,%s,%s,%s,%s,%s)"""
-            cur1.execute(query,render)
-            con.commit()
+            cur1=pgsql()
+            cur1.query_execute(query,render)
