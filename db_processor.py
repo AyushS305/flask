@@ -59,10 +59,7 @@ def db_injector(dict_with_invoice_data,set):
     cur1=pgsql()
     my_date= datetime.strptime(dict_with_invoice_data['Date'], '%Y-%m-%d')
 
-    if set['school_id'] == 1:
-        bill_no= 'PWPL/RW/'+str(my_date.year)+'/'+str(my_date.month)+'/'+str(dict_with_invoice_data['Roll No.'])
-    if set['school_id'] == 2:
-        bill_no= 'PWPL/GJ/'+str(my_date.year)+'/'+str(my_date.month)+'/'+str(dict_with_invoice_data['Roll No.'])
+    bill_no= 'PWPL/'+str(set['school_code'])+'/'+str(my_date.year)+'/'+str(my_date.month)+'/'+str(dict_with_invoice_data['Roll No.'])
     p=cur1.query_execute('select id,house_name from house where school_id=%s', (set['school_id'],))
     
     for z in p:
@@ -158,5 +155,5 @@ def save_raashan_line_items(data,z):
             query="""insert into raashan_sales 
             (invoice_no, product_id, tender_no, quantity, start_date, end_date, total_price)
             values(%s,%s,%s,%s,%s,%s,%s)"""
-            cur1=pgsql()
-            cur1.query_execute(query,render)
+            cur=pgsql()
+            cur.query_execute(query,render)

@@ -67,7 +67,6 @@ def output():
       global sync
       output=input_template_process(out, session['school_id'])
       sync=output
-      print(session['img_url']+'"')
       return render_template("student_invoice_output_template.html",output = output, image=session['img_url'])
    
 @app.route('/print_invoice',methods = ['POST', 'GET'])
