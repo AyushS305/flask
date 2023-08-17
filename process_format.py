@@ -91,4 +91,5 @@ def check_raashan_details(data,z):
    ter['Invoice No.']=abs(hash('PWPL/GJ/'+str(z)+'/'+str(date.today().year)+'/'+str(date.today().month)+'/'+str(s)))
    ter['start_date']= data['start_date']
    ter['end_date']= data['end_date']
+   ter['inv_date']= data['inv_date']
    return(ter)

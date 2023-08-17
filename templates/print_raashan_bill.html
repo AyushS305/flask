@@ -60,7 +60,8 @@
           </div>
           <div style="flex-grow: 1; text-align: right; ">
             <b>Bill from {{ result['start_date'] }} to {{ result['end_date'] }}</b><br>
-            <b>Invoice No.:{{ result['Invoice No.'] }}  </b>
+            <b>Invoice No.:{{ result['Invoice No.'] }}</b><br>
+            <b>Invoice Date:{{ result['inv_date'] }}</b>
           </div>
       </div>
         <br>
@@ -73,7 +74,7 @@
             <th style="background-color: rgb(173, 171, 171);">Total Quantity</th>
             <th style="background-color: rgb(173, 171, 171);">Total Price</th>
             {% for key, value in result.items() %}
-            {% if key not in('Grand Total','Word Amount', 'Date', 'Invoice No.', 'start_date', 'end_date') %}
+            {% if key not in('Grand Total','Word Amount', 'Date', 'Invoice No.', 'start_date', 'end_date', 'inv_date') %}
             <tr >
                 <td style="width: 100px"> {{ value[5] }} </td>
                 <th style="width: 400px"> {{ key }} </th>

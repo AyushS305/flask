@@ -19,7 +19,7 @@ app.config['MAIL_USERNAME']=os.environ['MAIL_USERNAME']
 app.config['MAIL_PASSWORD']= os.environ['MAIL_PASSWORD']
 app.config["SESSION_TYPE"] = "filesystem"
 app.config['SESSION_PERMANENT'] = True
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=5)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=15)
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 Session(app)
@@ -235,6 +235,7 @@ def print_raashan_bill():
       save_raashan_line_items(result, session['tender_no'])
       result['start_date']=change_date_format(result['start_date'])
       result['end_date']=change_date_format(result['end_date'])
+      result['inv_date']=change_date_format(result['inv_date'])
       msg = Message(
                 "RAASHAN BILL TO SAINIK SCHOOL GOPALGANJ PRINCIPAL GENERATED# "+str(result['Invoice No.']),
                 sender ='MailBot',

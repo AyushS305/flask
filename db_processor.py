@@ -150,10 +150,10 @@ def db_raashan_product_search(data):
 
 def save_raashan_line_items(data,z):
     for x in data:
-        if x not in ('Grand Total','Word Amount','Item Total', 'Date', 'Invoice No.', 'start_date', 'end_date'):
-            render= tuple([data['Invoice No.'], data[x][5], z,data[x][0], data['start_date'], data['end_date'], data[x][4]])
+        if x not in ('Grand Total','Word Amount','Item Total', 'Date', 'Invoice No.', 'start_date', 'end_date', 'inv_date'):
+            render= tuple([data['Invoice No.'], data[x][5], z,data[x][0], data['start_date'], data['end_date'], data[x][4], data['inv_date']])
             query="""insert into raashan_sales 
-            (invoice_no, product_id, tender_no, quantity, start_date, end_date, total_price)
-            values(%s,%s,%s,%s,%s,%s,%s)"""
+            (invoice_no, product_id, tender_no, quantity, start_date, end_date, total_price, inv_date)
+            values(%s,%s,%s,%s,%s,%s,%s,%s)"""
             cur=pgsql()
             cur.query_execute(query,render)
