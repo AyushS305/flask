@@ -2,6 +2,8 @@ import psycopg2
 from datetime import datetime
 import os
 from dotenv import load_dotenv
+from numtoword import *
+from babel.numbers import format_currency
 
 load_dotenv()
 DATABASE_URL = os.environ['DATABASE_URL']
@@ -79,6 +81,45 @@ def db_injector(dict_with_invoice_data,set):
             cur=pgsql()
             cur.query_execute(sql1,render)    
     return bill_no
+
+def db_search_student_invoice(dict_with_data):
+    cur=pgsql()
+    query="""select count(distinct bill_no) from sales where bill_no=%s and date_of_purchase= %s"""
+    output=cur.query_execute(query, (dict_with_data['inv_no'],dict_with_data['date_of_purchase']))
+    for x in output:
+        if x[0] == 0:
+            return "NF"
+        else:
+            cur=pgsql()
+            cur1=pgsql()
+            query="""select student_name, class, roll_no, to_char(date_of_purchase, 'DD-MM-YYYY'), house_name, bill_no, img_url, tc_leave, sum(item_quantity), sum(total_price)
+                        from sales s 
+                        join house h on h.id=s.house_id
+                        join schools s1 on s1.id=s.school_id
+                        where bill_no=%s and date_of_purchase=%s
+                        group by 1,2,3,4,5,6,7,8"""
+            out=cur.query_execute(query, (dict_with_data['inv_no'],dict_with_data['date_of_purchase']))
+            column_names = ['Name', 'Class', 'Roll No.', 'Date', 'House', 'Invoice No.', 'image', 'tc/leave', 'Item Total', 'Grand Total']
+            result={}
+            for x in range(len(out[0])):
+                result[column_names[x]]=out[0][x]
+            result['Word Amount']=number_to_word(result['Grand Total'])
+            query="""select product_name, item_quantity, product_price, total_price from sales s
+                        join products p on s.item_id=p.id
+                        where bill_no=%s and date_of_purchase=%s"""
+            out=cur1.query_execute(query, (dict_with_data['inv_no'],dict_with_data['date_of_purchase']))
+            for x in out:
+                temp=x[0]
+                x=list(x)
+                x.pop(0)
+                x[1]=format_currency(x[1], 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)
+                x[2]=format_currency(x[2], 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)
+                result[temp]=x
+            if result['tc/leave']==False:
+                result['tc/leave']="Current TC/Leave Status of this Invoice is NO"
+            else:
+                result['tc/leave']="Current TC/Leave Status of this Invoice is YES"
+    return result
 
 def db_search(dict_with_data, set):
     cur=pgsql()

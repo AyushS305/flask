@@ -89,6 +89,20 @@ def print_invoice():
       mail.send(msg)
       return render_template("student_invoice_print_template.html",output = output, image=session['img_url'])
    
+@app.route('/search_invoice',methods = ['POST', 'GET'])
+def search_invoice():
+      return render_template("search_invoice_input_template.html")
+      
+@app.route('/view_invoice',methods = ['POST', 'GET'])
+def view_invoice():
+   if request.method == 'POST':
+      out = request.form.to_dict()
+      out=db_search_student_invoice(out)
+      if out == "NF":
+         return render_template("student_invoice_not_found.html")
+      else:
+         return render_template("view_student_invoice_template.html", output=out, image=out['image'])
+         
 @app.route('/principal_bill',methods=['POST','GET'])
 def principal_bill():
    return render_template('principal_bill_input_template.html')
