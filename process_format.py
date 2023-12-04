@@ -5,32 +5,38 @@ from date_format_change import *
 from db_processor import *
 
 def input_template_process(out,x):  
-    rows=db_product_search(x)
-    ter={}
-    s=q=0
-    for x in out.keys():
-       if x not in ['Name','Class','Roll No.', 'Date', 'House']:
-          if out[x]=='':
-             continue
-          for y in rows:
-             if x==y[1]:
-                ter[x]=([int(out[x]),y[2],int(out[x])*y[2]])
-                s+=int(out[x])*y[2]
-                q+=int(out[x])
-       else:
-          ter[x]=out[x]
-    ter['Grand Total']=s
-    ter['Item Total']=q
-    ter['Word Amount']=number_to_word(s)
-    return(ter)
+   rows=db_product_search(x)
+   ter={}
+   s=q=0
+   for x in out.keys():
+      if x not in ['Name','Class','Roll No.', 'Date', 'House']:
+         if out[x]=='':
+            continue
+         for y in rows:
+            if x==y[1]:
+               ter[x]=([int(out[x]),y[2],int(out[x])*y[2]])
+               s+=int(out[x])*y[2]
+               q+=int(out[x])
+      else:
+         ter[x]=out[x]
+   for x in out.keys():
+      if ('_size' in x) == True and out[x]!='':
+         ter[x]=out[x]
+   ter['Grand Total']=s
+   ter['Item Total']=q
+   ter['Word Amount']=number_to_word(s)
+   return(ter)
 
 def output_template_format(out):
-    for x in out.keys():
-       if x not in ['Name','Class','Roll No.', 'Date', 'House', 'Grand Total', 'Word Amount', 'Item Total','Invoice No.']:
+   for x in out.keys():
+      if x not in ['Name','Class','Roll No.', 'Date', 'House', 'Grand Total', 'Word Amount', 'Item Total','Invoice No.'] and ('_size' in x) == False:
          out[x][1]=format_currency(out[x][1], 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)
-         out[x][2]=format_currency(out[x][2], 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)  
-    out['Grand Total']=format_currency(out['Grand Total'], 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)
-    return(out)
+         out[x][2]=format_currency(out[x][2], 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)
+      else:
+         if ('_size' in x) == True and out[x]!='':
+            out[x]=out[x]
+   out['Grand Total']=format_currency(out['Grand Total'], 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)
+   return(out)
 
 def school_pricipal_bill_process(res,set):
    result={}

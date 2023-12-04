@@ -56,11 +56,13 @@
                
                <th>Item Name</th>
                <th>Quantity</th>
+               <th>Size</th>
             </tr>
             {% for i in items %}
             <tr>
                 <td><b>{{i}}</b></td>
                 <td><input type = "number" name = "{{i}}" /></td>
+                <td><input type = "number" name = "{{i+'_size'}}"></td>
                 {% endfor %}
             </tr>
         </table>
