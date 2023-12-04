@@ -57,22 +57,25 @@
          <br>
          <table border=1>
             <th style="background-color: rgb(173, 171, 171);">Item Name</th>
+            <th style="background-color: rgb(173, 171, 171);">Size</th>
             <th style="background-color: rgb(173, 171, 171);">Quantity</th>
             <th style="background-color: rgb(173, 171, 171);">Price</th>
             <th style="background-color: rgb(173, 171, 171);">Total</th>
             {% for key, value in output.items() %}
-            {% if key not in ['Name','Class','Roll No.', 'Date', 'House', 'Grand Total', 'Word Amount', 'Item Total']%}
+            {% if key not in ['Name','Class','Roll No.', 'Date', 'House', 'Grand Total', 'Word Amount', 'Item Total'] and '_size' not in key%}
             <tr>
                <th style="width: 500px"> {{ key }} </th>
+               {% for key1,value1 in output.items() %}
+               {% if '_size' in key1 and key in key1 %}
+               <td style="width: 100px"> {{ value1 }} </td>
+               {% endif %}
+               {% endfor %}
                <td style="width: 100px"> {{ value[0] }} </td>
                <td style="width: 100px"> {{ value[1] }} </td>
                <td style="width: 100px"> {{ value[2] }} </td>
             </tr>
             {% endif %}
-
-         {% endfor %}
-        
-         
+         {% endfor %}         
          </table>
          <br>
          <table border=1>

@@ -68,23 +68,27 @@ def db_injector(dict_with_invoice_data,set):
         if dict_with_invoice_data['House']==z[1]:
             house_id=z[0]
             break
-    cur1=pgsql()    
+    
     for x in dict_with_invoice_data.keys():
-        if x not in ['Roll No.','Name','Class','House','Date', 'Grand Total', 'Word Amount', 'Item Total']:
-            p=cur1.query_execute('select id, product_name from products  where school_id=%s', (set['school_id'],))           
+        if x not in ['Roll No.','Name','Class','House','Date', 'Grand Total', 'Word Amount', 'Item Total'] and ('_size' in x) == False:
+            p=db_product_search(set['school_id'])         
             for y in p:
                 if x==y[1]:
                     item_id=y[0]
+                    break         
+            for y in dict_with_invoice_data.keys():
+                if ('_size' in y) == True and (x in y) == True:
+                    size=int(dict_with_invoice_data[y])
                     break
-            render=tuple([dict_with_invoice_data['Roll No.'],dict_with_invoice_data['Name'],dict_with_invoice_data['Class'],house_id,item_id,dict_with_invoice_data[x][0],dict_with_invoice_data[x][2],False,dict_with_invoice_data['Date'], bill_no, set['school_id'],set['user_id']])
-            sql1='insert into sales(roll_no,student_name,class,house_id,item_id,item_quantity,total_price,tc_leave,date_of_purchase,bill_no,school_id,user_id) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+            render=tuple([dict_with_invoice_data['Roll No.'],dict_with_invoice_data['Name'],dict_with_invoice_data['Class'],house_id,item_id,dict_with_invoice_data[x][0],dict_with_invoice_data[x][2],False,dict_with_invoice_data['Date'], bill_no, set['school_id'],set['user_id'],size])
+            sql1='insert into sales(roll_no,student_name,class,house_id,item_id,item_quantity,total_price,tc_leave,date_of_purchase,bill_no,school_id,user_id,size) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
             cur=pgsql()
             cur.query_execute(sql1,render)
-            #cur=pgsql()
-            #sql="""update inventory
-                    #set stock_present=stock_present-%s
-                    #where id=%s and school_id=%s and size=%s"""
-            #cur.query_execute(sql,(dict_with_invoice_data[x][0],item_id,set['school_id']))                
+            cur=pgsql()
+            sql="""update inventory
+                    set stock_present=stock_present-%s
+                    where id=%s and school_id=%s and size=%s"""
+            cur.query_execute(sql,(dict_with_invoice_data[x][0],item_id,set['school_id'],size))                
     return bill_no
 
 def db_search_student_invoice(dict_with_data):

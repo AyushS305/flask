@@ -64,7 +64,6 @@ def input ():
 def output():
    if request.method == 'POST':
       out = request.form.to_dict()
-      print(out)
       global sync
       output=input_template_process(out, session['school_id'])
       sync=output
