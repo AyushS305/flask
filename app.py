@@ -64,6 +64,7 @@ def input ():
 def output():
    if request.method == 'POST':
       out = request.form.to_dict()
+      print(out)
       global sync
       output=input_template_process(out, session['school_id'])
       sync=output
@@ -276,6 +277,31 @@ def analytics():
 @app.route('/looker_dashboard', methods=['POST','GET'])
 def looker_dashboard():
    return render_template('looker.html')
+
+@app.route('/inventory_input', methods = ['POST', 'GET'])
+def inventory_input ():
+   y=[]
+   for rows in db_product_search(session['school_id']):
+      y.append(rows[1])
+   return render_template('stock_input_template.html', items=y)
+
+@app.route('/inventory_output',methods = ['POST', 'GET'])
+def inventory_output():
+   if request.method == 'POST':
+      out = request.form.to_dict()
+      output={}
+      for x in out:
+         if out[x] == '':
+            continue
+         else:   
+            output[x]=out[x].split(",")
+      stock_input(output,session['school_id'])
+      return render_template("stock_input_success.html")
+
+@app.route('/inventory_view',methods = ['POST', 'GET'])
+def inventory_view():
+   output=view_stock(session['school_id'])
+   return render_template('stock_view_template.html', output=output, image=session['img_url'])
 
 if __name__ == '__main__':
    app.run(debug = True)

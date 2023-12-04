@@ -55,7 +55,7 @@ def db_house_search(dict_with_data):
 
 def db_product_search(dict_with_data):
     cur=pgsql()
-    return cur.query_execute('select * from products where school_id=%s', (dict_with_data,))
+    return cur.query_execute('select * from products where school_id=%s order by id', (dict_with_data,))
 
 def db_injector(dict_with_invoice_data,set):
     cur1=pgsql()
@@ -79,7 +79,12 @@ def db_injector(dict_with_invoice_data,set):
             render=tuple([dict_with_invoice_data['Roll No.'],dict_with_invoice_data['Name'],dict_with_invoice_data['Class'],house_id,item_id,dict_with_invoice_data[x][0],dict_with_invoice_data[x][2],False,dict_with_invoice_data['Date'], bill_no, set['school_id'],set['user_id']])
             sql1='insert into sales(roll_no,student_name,class,house_id,item_id,item_quantity,total_price,tc_leave,date_of_purchase,bill_no,school_id,user_id) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
             cur=pgsql()
-            cur.query_execute(sql1,render)    
+            cur.query_execute(sql1,render)
+            #cur=pgsql()
+            #sql="""update inventory
+                    #set stock_present=stock_present-%s
+                    #where id=%s and school_id=%s and size=%s"""
+            #cur.query_execute(sql,(dict_with_invoice_data[x][0],item_id,set['school_id']))                
     return bill_no
 
 def db_search_student_invoice(dict_with_data):
@@ -198,3 +203,35 @@ def save_raashan_line_items(data,z):
             values(%s,%s,%s,%s,%s,%s,%s,%s)"""
             cur=pgsql()
             cur.query_execute(query,render)
+
+def stock_input(dict_with_data,school):
+    cur=pgsql()
+    query="""select * from products where school_id = %s"""
+    out=cur.query_execute(query,(school,))
+    for x in out:
+        if (x[1] in dict_with_data) == True:
+            for y in dict_with_data[x[1]]:
+                z=y.split(':')
+                cur=pgsql()
+                query="""select stock_present from inventory
+                            where id=%s and school_id=%s and size=%s"""
+                val=cur.query_execute(query,(x[0],school,int(z[0])))
+                if len(val)==0:
+                    cur=pgsql()
+                    query="""insert into inventory (id,school_id,size,stock_present)
+                            values (%s,%s,%s,%s)"""
+                    cur.query_execute(query,(x[0],school,int(z[0]),int(z[1])))
+                else:
+                    cur=pgsql()
+                    query="""update inventory
+                                set stock_present=%s
+                                where id=%s and school_id=%s and size=%s"""
+                    cur.query_execute(query,(int(val[0][0])+int(z[1]),x[0],school,int(z[0])))
+
+def view_stock(school):
+    cur=pgsql()
+    query="""select product_name, size, stock_present from inventory i 
+                join products p on i.id=p.id and i.school_id=p.school_id
+                where i.school_id=%s
+                order by i.id, size"""
+    return cur.query_execute(query,(school,))

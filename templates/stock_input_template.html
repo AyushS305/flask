@@ -1,0 +1,60 @@
+<html>
+    <head>
+        <title>ENTER STUDENT BILLING DETAILS</title>
+        <link rel="icon" type="image/x-icon" href="https://drive.google.com/uc?export=view&id=1jjhDnX3tIAtRkBU_fUzQNF1yn49OYsdh">
+        <style>
+         h1 {
+           text-align: center;
+           display: block;
+           border: 1px black;
+           background-color: grey;
+           
+         }
+         img {
+           text-align: center;
+           
+         }
+         h2 {
+           text-align: center;
+         }
+         
+         body {
+           text-align: center;
+           background-color:rgb(224, 176, 230);
+
+         }
+
+         table, th, td {
+            margin-left: auto; 
+            margin-right: auto;
+            }
+         
+         </style>
+      </head>
+   <body>
+      <form action = "/inventory_output" method = "POST">
+         <h1><img src=" https://drive.google.com/uc?export=view&id=1_d2XtM4F7MGepwXL-eMrpOq4_5rvoNoe" alt="PRIKAWAY" width="50",height="50"> PRIKAWAY PRIVATE LIMITED GURUGRAM</h1>
+         <p align="right"><a href="/homepage">Homepage</a></p>
+         <h2>ENTER STOCK</h2>
+         <h3>IMPORTANT INSTRUCTION!!! PLEASE READ BEFORE INPUTTING ANY VALUES</h3>
+         <h3>THE FORMAT TO INPUT STOCK IN THE BELOW INPUT FIELDS IS</h3>
+         <h3>SIZE1:QUANTITY1,SIZE2:QUANTITY2,...SIZE N:QUANTITY N</h3>
+         <h3>FOR EXAMPLE IF YOU WANT TO INPUT 100 PIECES OF SIZE 30 AND 200 PIECES OF SIZE 34 OF ANY PARTICULAR ITEM THEN TYPE IN THE INPUT FIELD OF THAT ITEM 30:100,34:200</h3>
+         <table>
+            <tr>
+               
+               <th>Item Name</th>
+               <th>Size:Quantity</th>
+            </tr>
+            {% for i in items %}
+            <tr>
+                <td><b>{{i}}</b></td>
+                <td><input type = "text" name = "{{i}}" /></td>
+                {% endfor %}
+            </tr>
+        </table>
+         <p><input type = "Submit" value = "Submit" /></p>
+
+      </form>
+   </body>
+</html>
