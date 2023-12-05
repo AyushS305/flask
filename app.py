@@ -295,11 +295,29 @@ def inventory_output():
          else:   
             output[x]=out[x].split(",")
       stock_input(output,session['school_id'])
+      msg = Message(
+                "STOCK INPUT SUCCESSFUL",
+                sender ='MailBot',
+                recipients = ['prikawayinvoicemailbot@gmail.com']
+               )
+      ping="STOCK SUCCESSFULLY ENTERED \n BY USER: "+session['username']+"\n FOR SCHOOL: "+session['school_name']+"\n PLEASE READ IN THE FORMAT 'ITEM NAME':['SIZE:QUANTITY'] \n"+str(output)
+      msg.body = ping
+      mail.send(msg)
+      send_message(ping)
       return render_template("stock_input_success.html")
 
 @app.route('/inventory_view',methods = ['POST', 'GET'])
 def inventory_view():
    output=view_stock(session['school_id'])
+   msg = Message(
+                "INVENTORY VIEWED BY USER: "+session['username'],
+                sender ='MailBot',
+                recipients = ['prikawayinvoicemailbot@gmail.com']
+               )
+   ping="INVENTORY VIEWED BY USER: "+session['username']+'\n'+str(output)
+   msg.body = ping
+   mail.send(msg)
+   send_message(ping)
    return render_template('stock_view_template.html', output=output, image=session['img_url'])
 
 if __name__ == '__main__':
