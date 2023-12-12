@@ -338,6 +338,15 @@ def inventory_modify_task():
          else:   
             output[x]=out[x].split(",")
       stock_modify(output,session['school_id'])
+      msg = Message(
+                "STOCK MODIFY SUCCESSFUL",
+                sender ='MailBot',
+                recipients = ['prikawayinvoicemailbot@gmail.com']
+               )
+      ping="STOCK SUCCESSFULLY MODIFIED \n BY USER: "+session['username']+"\n FOR SCHOOL: "+session['school_name']+"\n PLEASE READ IN THE FORMAT 'ITEM NAME':['SIZE:QUANTITY'] \n"+str(output)
+      msg.body = ping
+      mail.send(msg)
+      send_message(ping)
       return render_template("stock_input_success.html")
 
 if __name__ == '__main__':
