@@ -320,5 +320,25 @@ def inventory_view():
    send_message(ping)
    return render_template('stock_view_template.html', output=output, image=session['img_url'])
 
+@app.route('/inventory_modify',methods = ['POST', 'GET'])
+def inventory_modify():
+   y=[]
+   for rows in db_product_search(session['school_id']):
+      y.append(rows[1])
+   return render_template('stock_modify_template.html', items=y)
+
+@app.route('/inventory_modify_task',methods = ['POST', 'GET'])
+def inventory_modify_task():
+   if request.method == 'POST':
+      out = request.form.to_dict()
+      output={}
+      for x in out:
+         if out[x] == '':
+            continue
+         else:   
+            output[x]=out[x].split(",")
+      stock_modify(output,session['school_id'])
+      return render_template("stock_input_success.html")
+
 if __name__ == '__main__':
    app.run(debug = True)

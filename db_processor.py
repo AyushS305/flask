@@ -240,3 +240,27 @@ def view_stock(school):
                 where i.school_id=%s
                 order by i.id, size"""
     return cur.query_execute(query,(school,))
+
+def stock_modify(dict_with_data,school):
+    cur=pgsql()
+    query="""select * from products where school_id = %s"""
+    out=cur.query_execute(query,(school,))
+    for x in out:
+        if (x[1] in dict_with_data) == True:
+            for y in dict_with_data[x[1]]:
+                z=y.split(':')
+                cur=pgsql()
+                query="""select stock_present from inventory
+                            where id=%s and school_id=%s and size=%s"""
+                val=cur.query_execute(query,(x[0],school,int(z[0])))
+                if len(val)==0:
+                    cur=pgsql()
+                    query="""insert into inventory (id,school_id,size,stock_present)
+                            values (%s,%s,%s,%s)"""
+                    cur.query_execute(query,(x[0],school,int(z[0]),int(z[1])))
+                else:
+                    cur=pgsql()
+                    query="""update inventory
+                                set stock_present=%s
+                                where id=%s and school_id=%s and size=%s"""
+                    cur.query_execute(query,(int(z[1]),x[0],school,int(z[0])))
