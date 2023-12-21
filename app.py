@@ -83,8 +83,8 @@ def print_invoice():
       output['Date']=change_date_format(output['Date'])
       msg = Message(
                 "STUDENT INVOICE " + action +"# "+ output['Invoice No.'],
-                sender ='MailBot',
-                recipients = ['prikawayinvoicemailbot@gmail.com']
+                sender =os.environ['SENDER'],
+                recipients = [os.environ['RECIPIENTS']]
                )  
       msg.body = " Please see the details below."
       output=output_template_format(output)
@@ -129,8 +129,8 @@ def print_school_bill():
       result=sync_school_bill
       msg = Message(
                 "BILL TO " +(session['school_name']).upper()+ " PRINCIPAL GENERATED# "+result['Invoice No.'],
-                sender ='MailBot',
-                recipients = ['prikawayinvoicemailbot@gmail.com']
+                sender =os.environ['SENDER'],
+                recipients = [os.environ['RECIPIENTS']]
                )
       msg.body = "Please see the details below."
       msg.html = render_template("pricipal_bill_print_template.html", result=result, image=session['img_url'])
@@ -168,8 +168,8 @@ def print_house_cover_page():
       result=sync_cover_data
       msg = Message(
                 "COVER PAGE TO SAINIK SCHOOL REWARI PRINCIPAL GENERATED# "+result['Invoice No.'],
-                sender ='MailBot',
-                recipients = ['prikawayinvoicemailbot@gmail.com']
+                sender =os.environ['SENDER'],
+                recipients = [os.environ['RECIPIENTS']]
                )
       msg.body = " Please see the details below."
       msg.html = render_template("cover_page_print.html", result=result, image=session['img_url'])
@@ -190,8 +190,8 @@ def delete_invoice_confirmed():
       if result=="S":
          msg = Message(
                 "STUDENT INVOICE# "+data['inv_no']+ "DELETED",
-                sender ='MailBot',
-                recipients = ['prikawayinvoicemailbot@gmail.com']
+                sender =os.environ['SENDER'],
+                recipients = [os.environ['RECIPIENTS']]
                )
          msg.body = " Student Invoice has been deleted from the database. Please note that this action is irreversible and if it was done by mistake then a new invoice needs to be generated"
          mail.send(msg)
@@ -214,8 +214,8 @@ def change_invoice_status_confirmed():
       if result=="S":
          msg = Message(
                 "STUDENT INVOICE# "+data['bill_no']+ "SET AS TC/LEAVE "+str(data['tc_leave'])+ " IN THE DATABASE",
-                sender ='MailBot',
-                recipients = ['prikawayinvoicemailbot@gmail.com']
+                sender =os.environ['SENDER'],
+                recipients = [os.environ['RECIPIENTS']]
                )
          msg.body = " Student Invoice TC/Leave status has been changed"
          mail.send(msg)
@@ -257,8 +257,8 @@ def print_raashan_bill():
       result['inv_date']=change_date_format(result['inv_date'])
       msg = Message(
                 "RAASHAN BILL TO SAINIK SCHOOL GOPALGANJ PRINCIPAL GENERATED# "+str(result['Invoice No.']),
-                sender ='MailBot',
-                recipients = ['prikawayinvoicemailbot@gmail.com']
+                sender =os.environ['SENDER'],
+                recipients = [os.environ['RECIPIENTS']]
                )
       msg.body = " Please see the details below."
       msg.html = render_template("print_raashan_bill.html", result=result, image=session)
@@ -302,8 +302,8 @@ def inventory_output():
       stock_input(output,session['school_id'])
       msg = Message(
                 "STOCK INPUT SUCCESSFUL",
-                sender ='MailBot',
-                recipients = ['prikawayinvoicemailbot@gmail.com']
+                sender =os.environ['SENDER'],
+                recipients = [os.environ['RECIPIENTS']]
                )
       ping="STOCK SUCCESSFULLY ENTERED \n BY USER: "+session['username']+"\n FOR SCHOOL: "+session['school_name']+"\n PLEASE READ IN THE FORMAT 'ITEM NAME':['SIZE:QUANTITY'] \n"+str(output)
       msg.body = ping
@@ -316,8 +316,8 @@ def inventory_view():
    output=view_stock(session['school_id'])
    msg = Message(
                 "INVENTORY VIEWED BY USER: "+session['username'],
-                sender ='MailBot',
-                recipients = ['prikawayinvoicemailbot@gmail.com']
+                sender =os.environ['SENDER'],
+                recipients = [os.environ['RECIPIENTS']]
                )
    ping="INVENTORY VIEWED BY USER: "+session['username']+'\n'+str(output)
    msg.body = ping
@@ -345,8 +345,8 @@ def inventory_modify_task():
       stock_modify(output,session['school_id'])
       msg = Message(
                 "STOCK MODIFY SUCCESSFUL",
-                sender ='MailBot',
-                recipients = ['prikawayinvoicemailbot@gmail.com']
+                sender =os.environ['SENDER'],
+                recipients = [os.environ['RECIPIENTS']]
                )
       ping="STOCK SUCCESSFULLY MODIFIED \n BY USER: "+session['username']+"\n FOR SCHOOL: "+session['school_name']+"\n PLEASE READ IN THE FORMAT 'ITEM NAME':['SIZE:QUANTITY'] \n"+str(output)
       msg.body = ping

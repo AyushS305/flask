@@ -113,6 +113,7 @@ def db_search_student_invoice(dict_with_data):
             for x in range(len(out[0])):
                 result[column_names[x]]=out[0][x]
             result['Word Amount']=number_to_word(result['Grand Total'])
+            result['Grand Total']=format_currency(result['Grand Total'], 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)
             query="""select product_name, size, item_quantity, product_price, total_price from sales s
                         join products p on s.item_id=p.id
                         where bill_no=%s and date_of_purchase=%s"""
