@@ -149,18 +149,18 @@ def cover_page_input():
 @app.route('/confirm_cover_page', methods=['POST','GET'])
 def confirm_cover_page():
    if request.method == 'POST':
-         data = request.form.to_dict()
-         if data['House'] == 'All':
-            result=db_search_all_house_cover(data, session['school_id'])
-            result=all_house_cover_process(result)
-            result['House']='All'
-         else:
-            result=db_search_house_cover(data, session['school_id'])
-            result=house_cover_process(result)
-            result['House']=data['House']
-         global sync_cover_data
-         sync_cover_data=result
-         return render_template("cover_page_house.html", result=result, image=session['img_url'])
+      data = request.form.to_dict()
+      if data['House'] == 'All':
+         result=db_search_all_house_cover(data, session['school_id'])
+         result=all_house_cover_process(result)
+         result['House']='All'
+      else:
+         result=db_search_house_cover(data, session['school_id'])
+         result=house_cover_process(result)
+         result['House']=data['House']
+      global sync_cover_data
+      sync_cover_data=result
+      return render_template("cover_page_house.html", result=result, image=session['img_url'])
    
 @app.route('/print_house_cover_page',methods=['POST','GET'])
 def print_house_cover_page():
@@ -180,7 +180,7 @@ def print_house_cover_page():
 
 @app.route('/delete_invoice_input', methods=['POST', 'GET'])
 def delete_invoice_input():
-      return render_template("delete_invoice_input_template.html")
+   return render_template("delete_invoice_input_template.html")
 
 @app.route('/delete_invoice_confirmed', methods=['POST', 'GET'])
 def delete_invoice_confirmed():

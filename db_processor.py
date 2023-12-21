@@ -126,9 +126,9 @@ def db_search_student_invoice(dict_with_data):
                 x[3]=format_currency(x[3], 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)
                 result[temp]=x
             if result['tc/leave']==False:
-                result['tc/leave']="Current TC/Leave Status of this Invoice is NO"
+                result['tc/leave']="Current TC/Leave Status of this Invoice is set as NO"
             else:
-                result['tc/leave']="Current TC/Leave Status of this Invoice is YES"
+                result['tc/leave']="Current TC/Leave Status of this Invoice is set as YES"
     return result
 
 def db_search(dict_with_data, set):
