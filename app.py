@@ -58,6 +58,7 @@ def input ():
       h.append(rows[0])
    for rows in db_product_search(session['school_id']):
       y.append(rows[1])  
+   session['flag']=None
    return render_template('student_invoice_input_template.html', items=y, house=h)
 
 @app.route('/output',methods = ['POST', 'GET'])
@@ -73,6 +74,8 @@ def output():
 def print_invoice():
    if request.method == 'POST':
       output=sync
+      if session['flag'] is not None:
+         db_delete_invoice(session['flag'])
       output['Invoice No.']= db_injector(output, session)
       output['Date']=change_date_format(output['Date'])
       msg = Message(
@@ -101,6 +104,7 @@ def view_invoice():
       if out == "NF":
          return render_template("student_invoice_not_found.html")
       else:
+         out['Date']=change_date_format(str(out['Date']))
          return render_template("view_student_invoice_template.html", output=out, image=out['image'])
          
 @app.route('/principal_bill',methods=['POST','GET'])
@@ -183,19 +187,18 @@ def delete_invoice_confirmed():
       result= db_delete_invoice(data)
       if result=="S":
          msg = Message(
-                "STUDENT INVOICE# "+data['bill_no']+ "DELETED",
+                "STUDENT INVOICE# "+data['inv_no']+ "DELETED",
                 sender ='MailBot',
                 recipients = ['prikawayinvoicemailbot@gmail.com']
                )
          msg.body = " Student Invoice has been deleted from the database. Please note that this action is irreversible and if it was done by mistake then a new invoice needs to be generated"
          mail.send(msg)
-         result="INVOICE NO. "+data['bill_no']+"DELETED FROM DATABASE"
+         result="INVOICE NO. "+data['inv_no']+"DELETED FROM DATABASE"
          ping=result+"\n DELETED BY USER: "+session['username']
          send_message(ping)
          return render_template("delete_invoice_confirmed.html", result=result)
       if result=="NF":
-         result="INVOICE DOES NOT EXISTS IN DATABSE. CHECK DETAILS AND TRY AGAIN"
-         return render_template("delete_invoice_confirmed.html", result=result)
+         return render_template("student_invoice_not_found.html")
 
 @app.route('/change_invoice_status_input', methods=['POST', 'GET'])
 def change_invoice_status_input():
@@ -348,6 +351,27 @@ def inventory_modify_task():
       mail.send(msg)
       send_message(ping)
       return render_template("stock_input_success.html")
+
+@app.route('/edit_invoice', methods=['POST', 'GET'])
+def edit_invoice_input():
+      return render_template("edit_invoice_input_template.html")
+
+@app.route('/edit_invoice_details', methods=['POST', 'GET'])
+def edit_invoice_details():
+   if request.method == 'POST':
+      out=request.form.to_dict()
+      output=db_search_student_invoice(out)
+      if output == 'NF':
+         return render_template("student_invoice_not_found.html")
+      else:
+         h=[]
+         y=[]
+         for rows in db_house_search(session['school_id']):
+            h.append(rows[0])
+         for rows in db_product_search(session['school_id']):
+            y.append(rows[1])
+         session['flag']=out  
+         return render_template("student_invoice_edit_template.html", out=output, items=y, house=h)
 
 if __name__ == '__main__':
    app.run(debug = True)
