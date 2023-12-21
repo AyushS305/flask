@@ -101,7 +101,7 @@ def db_search_student_invoice(dict_with_data):
         else:
             cur=pgsql()
             cur1=pgsql()
-            query="""select student_name, class, roll_no, to_char(date_of_purchase, 'DD-MM-YYYY'), house_name, bill_no, img_url, tc_leave, sum(item_quantity), sum(total_price)
+            query="""select student_name, class, roll_no, date_of_purchase, house_name, bill_no, img_url, tc_leave, sum(item_quantity), sum(total_price)
                         from sales s 
                         join house h on h.id=s.house_id
                         join schools s1 on s1.id=s.school_id
@@ -113,7 +113,7 @@ def db_search_student_invoice(dict_with_data):
             for x in range(len(out[0])):
                 result[column_names[x]]=out[0][x]
             result['Word Amount']=number_to_word(result['Grand Total'])
-            query="""select product_name, item_quantity, product_price, total_price from sales s
+            query="""select product_name, size, item_quantity, product_price, total_price from sales s
                         join products p on s.item_id=p.id
                         where bill_no=%s and date_of_purchase=%s"""
             out=cur1.query_execute(query, (dict_with_data['inv_no'],dict_with_data['date_of_purchase']))
@@ -121,8 +121,8 @@ def db_search_student_invoice(dict_with_data):
                 temp=x[0]
                 x=list(x)
                 x.pop(0)
-                x[1]=format_currency(x[1], 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)
                 x[2]=format_currency(x[2], 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)
+                x[3]=format_currency(x[3], 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)
                 result[temp]=x
             if result['tc/leave']==False:
                 result['tc/leave']="Current TC/Leave Status of this Invoice is NO"
@@ -163,16 +163,16 @@ def db_search_all_house_cover(dict_with_data,set):
     
 def db_delete_invoice(dict_with_data):
     cur=pgsql()
-    query= """  select count(distinct bill_no) from sales where bill_no=%s and date_of_purchase=%s and class=%s;  """
-    records=cur.query_execute(query, (dict_with_data['bill_no'],dict_with_data['date_of_purchase'], dict_with_data['class']))
+    query= """  select count(distinct bill_no) from sales where bill_no=%s and date_of_purchase=%s"""
+    records=cur.query_execute(query, (dict_with_data['inv_no'],dict_with_data['date_of_purchase']))
     for x in records:
         if x[0] == 0:
             return "NF"
         else:
             query= """delete from sales
-                    where bill_no=%s and date_of_purchase=%s and class=%s;""" 
+                    where bill_no=%s and date_of_purchase=%s;""" 
             cur=pgsql()
-            cur.query_execute(query,(dict_with_data['bill_no'],dict_with_data['date_of_purchase'], dict_with_data['class']))
+            cur.query_execute(query,(dict_with_data['inv_no'],dict_with_data['date_of_purchase']))
             return "S"
 
 def db_change_invoice_status(dict_with_data):
