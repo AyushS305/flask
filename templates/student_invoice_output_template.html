@@ -63,9 +63,6 @@
             <th style="background-color: rgb(173, 171, 171);">Total</th>
             {% for key, value in output.items() %}
             {% if key not in ['Name','Class','Roll No.', 'Date', 'House', 'Grand Total', 'Word Amount', 'Item Total'] and '_size' not in key%}
-            <script>
-               console.log(output.items());
-            </script>
             <tr>
                <th style="width: 500px"> {{ key }} </th>
                {% for key1,value1 in output.items() %}
