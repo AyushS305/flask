@@ -1,7 +1,7 @@
 <html>
     <head>
         <title>CONFIRM STUDENT BILLING DETAILS</title>
-        <link rel="icon" type="image/x-icon" href="https://drive.google.com/uc?export=view&id=1jjhDnX3tIAtRkBU_fUzQNF1yn49OYsdh">
+        <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/BbHwVwx1/logo.png">
         <style>
        
          h1 {
@@ -34,7 +34,7 @@
          </style>
       </head>
    <body>
-    <form action = "/print_invoice" method = "POST">
+    <form action = "/print_invoice" method = "POST" id="'form" onsubmit="myButton.disabled=true; myButton.style.opacity='0.5'; return true;">
          <h1><img src= "{{ image }}" alt="PRIKAWAY"></h1>
          <p align="right"><a href="/homepage">Homepage</a></p>
          <table border=1>
@@ -64,15 +64,15 @@
             {% for key, value in output.items() %}
             {% if key not in ['Name','Class','Roll No.', 'Date', 'House', 'Grand Total', 'Word Amount', 'Item Total'] and '_size' not in key%}
             <tr>
-               <th style="width: 500px"> {{ key }} </th>
+               <th style="width: 400px"> {{ key }} </th>
                {% for key1,value1 in output.items() %}
                {% if '_size' in key1 and key in key1 %}
                <td style="width: 100px"> {{ value1 }} </td>
                {% endif %}
                {% endfor %}
                <td style="width: 100px"> {{ value[0] }} </td>
-               <td style="width: 100px"> {{ value[1] }} </td>
-               <td style="width: 100px"> {{ value[2] }} </td>
+               <td style="width: 150px"> {{ value[1] }} </td>
+               <td style="width: 150px"> {{ value[2] }} </td>
             </tr>
             {% endif %}
          {% endfor %}         
@@ -87,9 +87,9 @@
             <td>{{output['Word Amount']}}</td></tr>
          </table>
          <br>
-         <img src="https://drive.google.com/uc?export=view&id=1x1VR2s7hg5g6Je3sDjvsKXvcb2Cy60_q" width="1000px", height="200px">
+         <img src="https://i.postimg.cc/qMhLmnM8/sig-table.png" width="1000px", height="200px">
          <br>
-         <input type = "Submit" value = "Confirm details & Save to database" >   
-         </form>
+         <input type = "Submit" name="myButton" value = "Confirm details & Print Invoice" >
+         </form>         
         </body>
 </html>

@@ -4,26 +4,22 @@ from db_processor import *
 from date_format_change import *
 from process_format import *
 from flask_session import Session
-from telegram_messenger import *
 from datetime import timedelta
 from dotenv import load_dotenv
 import os
+import json
+import requests
+
 
 load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY']=os.environ['SECRET_KEY']
-app.config['MAIL_SERVER']=os.environ['MAIL_SERVER']
-app.config['MAIL_PORT']=os.environ['MAIL_PORT']
-app.config['MAIL_USERNAME']=os.environ['MAIL_USERNAME']
-app.config['MAIL_PASSWORD']= os.environ['MAIL_PASSWORD']
 app.config["SESSION_TYPE"] = "filesystem"
 app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=15)
-app.config['MAIL_USE_TLS'] = False
-app.config['MAIL_USE_SSL'] = True
+
 Session(app)
-mail = Mail(app)
 
 @app.route('/', methods = ['POST', 'GET'])
 def auth():
@@ -36,7 +32,8 @@ def auth():
       if result['flag'] == False:
          error = 'Invalid Credentials. Please try again.'
       else:
-         send_message("user " + session['username']+ " logged in")
+         ping="user " + session['username']+ " logged in"
+         requests.post(os.environ['TELEGRAM_MESSENGER'], json=json.dumps(ping))
          return redirect(url_for('homepage'))     
    return render_template('login.html', error=error)
 
@@ -46,20 +43,29 @@ def homepage():
 
 @app.route('/logout')
 def logout():
-   send_message("user " + session['username']+ " logged out")
+   ping="user " + session['username']+ " logged out"
+   requests.post(os.environ['TELEGRAM_MESSENGER'], json=json.dumps(ping))
    session.pop('username',None)
    return redirect(url_for('auth'))
 
 @app.route('/input', methods = ['POST', 'GET'])
 def input ():
-   h=[]
-   y=[]
-   for rows in db_house_search(session['school_id']):
-      h.append(rows[0])
-   for rows in db_product_search(session['school_id']):
-      y.append(rows[1])  
+   #set flag key in session list to None
    session['flag']=None
-   return render_template('student_invoice_input_template.html', items=y, house=h)
+   #house search API call
+   response = requests.get("http://127.1.1.1:8080/db_house_search", params={'school_id':session['school_id']})
+   #converting to dictionary
+   dictr = response.json()
+   #converting to list
+   house_list=list(dictr['house_name'].values())
+   #product search API call
+   response = requests.get("http://127.1.1.1:8080/db_product_search", params={'school_id':session['school_id']})
+   #converting to diction
+   dictr = response.json()
+   #converting to list
+   product_list=list(dictr['product_price'].keys())
+   #rendering template
+   return render_template('student_invoice_input_template.html', items=product_list, house=house_list)
 
 @app.route('/output',methods = ['POST', 'GET'])
 def output():
@@ -79,19 +85,33 @@ def print_invoice():
          db_delete_invoice(session['flag'])
       else:
          action="GENERATED"
-      output['Invoice No.']= db_injector(output, session)
+      #save student invoice details API call
+      merge_dict={}
+      header={}
+      products={}
+      merge_dict['session']=session
+      for x in output.keys():
+         if x in ['Roll No.','Name','Class','House','Date', 'Grand Total', 'Word Amount', 'Item Total']:
+            header[x]=output[x]
+         else:
+            products[x]=output[x]
+      merge_dict['header']= header
+      merge_dict['products']= products
+      merge_dict['products']={k:v for k,v in merge_dict['products'].items() if v}
+      json_output=json.dumps(merge_dict, indent=4, default=str)
+      response = requests.post("http://127.1.1.1:8080/db_save_student_invoice", json=json_output)
+      output['Invoice No.']= response.json()
       output['Date']=change_date_format(output['Date'])
-      msg = Message(
-                "STUDENT INVOICE " + action +"# "+ output['Invoice No.'],
-                sender =os.environ['SENDER'],
-                recipients = [os.environ['RECIPIENTS']]
-               )  
-      msg.body = " Please see the details below."
       output=output_template_format(output)
       ping="STUDENT INVOICE "+action+ "\nSCHOOL NAME: "+ session['school_name']+"\nINVOICE NO: "+ output['Invoice No.'] +"\n"+ action+ " BY USER: "+session['username']+"\n STUDENT NAME: "+ output['Name']+"\n CLASS: "+ output['Class']+"\n ROLL NO: " +output['Roll No.']+"\n HOUSE: "+ output['House']+"\n INVOICE DATE: " +output['Date']+"\n TOTAL ITEMS: "+ str(output['Item Total'])+"\n TOTAL AMOUNT: " +output['Grand Total']
-      send_message(ping)
-      msg.html = render_template("student_invoice_print_template.html", output=output, image=session['img_url'])
-      mail.send(msg)
+      #call telegram messenger API
+      requests.post(os.environ['TELEGRAM_MESSENGER'], json=json.dumps(ping))
+      email_dict={} #email dict to be sent to email messenger api
+      email_dict['img_url']=session['img_url']
+      email_dict['output']=output
+      email_dict['action']=action
+      #call email messenger api
+      requests.post(os.environ['STUDENT_INVOICE_EMAILER'], json=json.dumps(email_dict))
       return render_template("student_invoice_print_template.html",output = output, image=session['img_url'])
    
 @app.route('/search_invoice',methods = ['POST', 'GET'])
@@ -102,12 +122,28 @@ def search_invoice():
 def view_invoice():
    if request.method == 'POST':
       out = request.form.to_dict()
-      out=db_search_student_invoice(out)
-      if out == "NF":
+      #product search API call
+      response = requests.get("http://127.1.1.1:8080/db_search_student_invoice", params={'inv_no':out['inv_no'], 'date_of_purchase':out['date_of_purchase']})
+      respons=response.json()
+      if respons['found'] == False:
          return render_template("student_invoice_not_found.html")
       else:
-         out['Date']=change_date_format(str(out['Date']))
-         return render_template("view_student_invoice_template.html", output=out, image=out['image'])
+         respons_header=json.loads(respons['headers'])
+         respons_products=json.loads(respons['products'])
+         img_url=respons_header['img_url']
+         response_products=pd.DataFrame(respons_products)
+         response_products.index = pd.RangeIndex(start=1, stop=1+len(response_products), step=1)
+         response_products.rename(columns={'product_name':'Product Name', 'size':'Product Size', 'item_quantity':'Item Quantity', 'product_price':'Unit Price', 'total_price':'Total Price'}, inplace=True)
+         respons_header=pd.DataFrame(respons_header, columns=respons_header.keys())
+         x=datetime.utcfromtimestamp(respons_header['date_of_purchase'][0]/1000)
+         respons_header['date_of_purchase'][0] = x.date()
+         respons_header['date_of_purchase'][0]=change_date_format(str(respons_header['date_of_purchase'][0])) 
+         tc_leave=respons_header['tc_leave'][0]
+         word_amount=respons_header['Word Amount'][0]
+         word_amount=word_amount[0]
+         respons_header.drop(respons_header.iloc[:,6:9], inplace=True, axis=1)
+         respons_header.rename(columns={'student_name':'Name', 'class':'Class', 'roll_no':'Roll No.', 'date_of_purchase':'Purchase Date', 'house_name':'House', 'bill_no':'Invoice No.', 'item_quantity':'Total Items', 'total_price':'Total Price'}, inplace=True)
+         return render_template("view_student_invoice_template copy.html", header=respons_header.to_html(classes='data', index=False, justify='center').replace('<th>','<th style = "background-color: rgb(173, 171, 171)">'), products=response_products.to_html(classes='data', justify='center').replace('<th>','<th style = "background-color: rgb(173, 171, 171)">'), word_amount=word_amount, tc_leave=tc_leave, image=img_url['0'])
          
 @app.route('/principal_bill',methods=['POST','GET'])
 def principal_bill():
@@ -136,7 +172,7 @@ def print_school_bill():
       msg.html = render_template("pricipal_bill_print_template.html", result=result, image=session['img_url'])
       mail.send(msg)
       ping="BILL TO PRINCIPAL GENERATED"+"\nSCHOOL NAME: "+ session['school_name']+"\nINVOICE NO: "+ result['Invoice No.'] +"\n GENERATED BY USER: "+session['username']+"\n INVOICE DATE: " +result['Date']+"\n TOTAL ITEMS: "+ str(result['Item Total'])+"\n TOTAL AMOUNT: " +result['Grand Total']
-      send_message(ping)
+      #send_message(ping)
       return render_template("pricipal_bill_print_template.html",result = result, image=session['img_url'])
    
 @app.route('/cover_page_input', methods=['POST','GET'])
@@ -175,7 +211,7 @@ def print_house_cover_page():
       msg.html = render_template("cover_page_print.html", result=result, image=session['img_url'])
       mail.send(msg)
       ping="COVER PAGE GENERATED"+"\nSCHOOL NAME: "+ session['school_name']+"\n GENERATED BY USER: "+session['username']+"\n TOTAL ITEMS: "+ str(result['Item Total'])+"\n TOTAL AMOUNT: " +result['Grand Total']
-      send_message(ping)
+      #send_message(ping)
       return render_template("cover_page_print.html",result = result, image=session['img_url'])
 
 @app.route('/delete_invoice_input', methods=['POST', 'GET'])
@@ -197,7 +233,7 @@ def delete_invoice_confirmed():
          mail.send(msg)
          result="INVOICE NO. "+data['inv_no']+"DELETED FROM DATABASE"
          ping=result+"\n DELETED BY USER: "+session['username']
-         send_message(ping)
+         #send_message(ping)
          return render_template("delete_invoice_confirmed.html", result=result)
       if result=="NF":
          return render_template("student_invoice_not_found.html")
@@ -220,7 +256,7 @@ def change_invoice_status_confirmed():
          msg.body = " Student Invoice TC/Leave status has been changed"
          mail.send(msg)
          result="INVOICE NO. "+data['bill_no']+" MARKED AS TC/LEAVE "+str(data['tc_leave'])+ " IN THE DATABASE"
-         send_message(result+" BY USER "+session['username'])
+         #send_message(result+" BY USER "+session['username'])
          return render_template("change_invoice_status_confirmed.html", result=result)
       if result=="NF":
          result="INVOICE DOES NOT EXISTS IN DATABSE. CHECK DETAILS AND TRY AGAIN"
@@ -264,7 +300,7 @@ def print_raashan_bill():
       msg.html = render_template("print_raashan_bill.html", result=result, image=session)
       mail.send(msg)
       ping="RAASHAN BILL TO SAINIK SCHOOL GOPALGANJ PRINCIPAL GENERATED# "+"\nINVOICE NO: "+ str(result['Invoice No.']) +"\n GENERATED BY USER: "+session['username']+"\n TOTAL AMOUNT: " +str(result['Grand Total'])
-      send_message(ping)
+      #send_message(ping)
       return render_template('print_raashan_bill.html', result=result, image=session)
 
 @app.route('/analytics', methods=['POST','GET'])
@@ -308,7 +344,7 @@ def inventory_output():
       ping="STOCK SUCCESSFULLY ENTERED \n BY USER: "+session['username']+"\n FOR SCHOOL: "+session['school_name']+"\n PLEASE READ IN THE FORMAT 'ITEM NAME':['SIZE:QUANTITY'] \n"+str(output)
       msg.body = ping
       mail.send(msg)
-      send_message(ping)
+      #send_message(ping)
       return render_template("stock_input_success.html")
 
 @app.route('/inventory_view',methods = ['POST', 'GET'])

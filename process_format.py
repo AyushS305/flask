@@ -1,30 +1,41 @@
 from babel.numbers import format_currency
 from datetime import date
-from numtoword import number_to_word
+from num2words import num2words
 from date_format_change import *
 from db_processor import *
+import requests
+import pandas as pd
+from decimal import Decimal
 
 def input_template_process(out,x):  
-   rows=db_product_search(x)
+
+   response = requests.get("http://127.1.1.1:8080/db_product_search", params={'school_id':x})
+   dictr = response.json()
+   df=pd.DataFrame.from_dict(dictr['product_price'], orient='index', columns=['product_price'])
    ter={}
    s=q=0
    for x in out.keys():
-      if x not in ['Name','Class','Roll No.', 'Date', 'House']:
-         if out[x]=='':
-            continue
-         for y in rows:
-            if x==y[1]:
-               ter[x]=([int(out[x]),y[2],int(out[x])*y[2]])
-               s+=int(out[x])*y[2]
-               q+=int(out[x])
+      if x not in ['Name','Class','Roll No.', 'Date', 'House'] and ('_size' in x) == False and out[x]!='': #Skipping these keys in the loop
+         #Checking for the blank values and skipping them
+         #if out[x]=='':
+            #continue
+         #Calculating the price using the df from api call and df slashing
+         ter[x]=([int(out[x]),df.loc[x]['product_price'],int(out[x])*df.loc[x]['product_price']])
+         s+=int(out[x])*df.loc[x]['product_price'] #Total price
+         q+=int(out[x])     #Total quantity  
+      elif x not in ['Name','Class','Roll No.', 'Date', 'House'] and ('_size' in x) == False and out[x]=='':
+         continue
+      elif x not in ['Name','Class','Roll No.', 'Date', 'House'] and ('_size' in x) == True and out[x]=='':
+         continue
+      elif x not in ['Name','Class','Roll No.', 'Date', 'House']and ('_size' in x) == True and out[x]!='':
+         ter[x]=out[x]        
       else:
-         ter[x]=out[x]
-   for x in out.keys():
-      if ('_size' in x) == True and out[x]!='':
-         ter[x]=out[x]
+         ter[x]=out[x] #Saving the remaining details in the dictionary      
    ter['Grand Total']=s
    ter['Item Total']=q
-   ter['Word Amount']=number_to_word(s)
+   #we have to use decimal class to convert currency using the num2words package
+   ter['Word Amount']=num2words(Decimal(s.item()), to='currency',  lang='en_IN' , separator= ' and', cents=False, currency='INR').title() #converting number to words
+   ter['Word Amount']=ter['Word Amount'].replace(' And 00 Paise','') #replacing the  and 00 paise with empty space
    return(ter)
 
 def output_template_format(out):
@@ -49,7 +60,8 @@ def school_pricipal_bill_process(res,set):
    result['Invoice No.']=str(abs(hash('PWPL/'+set+'/'+str(date.today()))))
    result['Grand Total']=format_currency(s, 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)
    result['Item Total']=q
-   result['Word Amount']=number_to_word(s)
+   result['Word Amount']=num2words(Decimal(s.item()), to='currency',  lang='en_IN' , separator= ' and', cents=False, currency='INR').title() #converting number to words
+   result['Word Amount']=result['Word Amount'].replace(' And 00 Paise','') #replacing the  and 00 paise with empty space
    return result
 
 def house_cover_process(res):
@@ -63,8 +75,9 @@ def house_cover_process(res):
    result['Invoice No.']=str(abs(hash('PWPL/RW/'+str(date.today()))))
    result['Grand Total']=format_currency(s, 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)
    result['Item Total']=q
-   result['Word Amount']=number_to_word(s)
-   return result
+   result['Word Amount']=num2words(Decimal(s.item()), to='currency',  lang='en_IN' , separator= ' and', cents=False, currency='INR').title() #converting number to words
+   result['Word Amount']=result['Word Amount'].replace(' And 00 Paise','') #replacing the  and 00 paise with empty space
+   return result 
 
 def all_house_cover_process(res):
    result={}
@@ -77,7 +90,8 @@ def all_house_cover_process(res):
    result['Invoice No.']=str(abs(hash('PWPL/RW/'+str(date.today()))))
    result['Grand Total']=format_currency(s, 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)
    result['Item Total']=q
-   result['Word Amount']=number_to_word(s)
+   result['Word Amount']=num2words(Decimal(s.item()), to='currency',  lang='en_IN' , separator= ' and', cents=False, currency='INR').title() #converting number to words
+   result['Word Amount']=result['Word Amount'].replace(' And 00 Paise','') #replacing the  and 00 paise with empty space
    return result
 
 def check_raashan_details(data,z):
@@ -94,6 +108,8 @@ def check_raashan_details(data,z):
                s+=round(float(data[x])*(y[3]+y[4]),2)          
    ter['Grand Total']=s
    ter['Word Amount']=number_to_word(s)
+   ter['Word Amount']=num2words(Decimal(s.item()), to='currency',  lang='en_IN' , separator= ' and', cents=False, currency='INR').title() #converting number to words
+   ter['Word Amount']=resuterlt['Word Amount'].replace(' And 00 Paise','') #replacing the  and 00 paise with empty space
    ter['Invoice No.']=abs(hash('PWPL/GJ/'+str(z)+'/'+str(date.today().year)+'/'+str(date.today().month)+'/'+str(s)))
    ter['start_date']= data['start_date']
    ter['end_date']= data['end_date']

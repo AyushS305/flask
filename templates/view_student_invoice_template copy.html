@@ -1,0 +1,63 @@
+<html>
+    <head>
+        <title>VIEW / PRINT STUDENT INVOICE</title>
+        <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/BbHwVwx1/logo.png">
+        <style>
+        @media print {
+                      #printbtn  {
+                        display: none;
+                        }
+                    }
+         h1 {
+           text-align: center;
+           display: block;
+           
+           
+         }
+         img {
+           text-align: center;
+           
+         }
+         h2 {
+           text-align: center;
+         }
+         
+         body {
+           text-align: center;
+           
+
+         }
+        
+         td{
+            text-align: center;
+         }
+         table, th {
+            margin-left: auto; 
+            margin-right: auto;
+            }
+         
+         </style>
+      </head>
+   <body>
+      <h1><img src= "{{ image }}" alt="PRIKAWAY"></h1>
+      {{header | safe}}
+    <br>
+    {{products | safe}}
+    <br>
+    <table border=1>
+      <tr >
+       <th style="width: 200px; background-color: rgb(173, 171, 171);"> Amount Payable(in Words) </th>
+       <td> {{ word_amount }} </td></tr></table>
+    <br>
+         <img src="https://i.postimg.cc/qMhLmnM8/sig-table.png" width="1000px", height="200px">
+    <br>
+    <br>     
+    <input id="printbtn" type = "button" value = "{{tc_leave}}"> 
+    <br>
+    <input id="printbtn" type = "button" value = "Print this Invoice" onclick="window.print();return false;window.location.href='/print_invoice';">   
+    <br>
+    <form action="/homepage">
+      <input id='printbtn' type="submit" value="Go to Homepage" />
+    </form>
+   </body>
+</html>

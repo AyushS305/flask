@@ -2,7 +2,7 @@ import psycopg2
 from datetime import datetime
 import os
 from dotenv import load_dotenv
-from numtoword import *
+#from flask.api.numtoword import *
 from babel.numbers import format_currency
 
 load_dotenv()
@@ -110,7 +110,7 @@ def db_search_student_invoice(dict_with_data):
             out=cur.query_execute(query, (dict_with_data['inv_no'],dict_with_data['date_of_purchase']))
             column_names = ['Name', 'Class', 'Roll No.', 'Date', 'House', 'Invoice No.', 'image', 'tc/leave', 'Item Total', 'Grand Total']
             result={}
-            for x in range(len(out[0])):
+            for x in range(len(out[0])): 
                 result[column_names[x]]=out[0][x]
             result['Word Amount']=number_to_word(result['Grand Total'])
             result['Grand Total']=format_currency(result['Grand Total'], 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)
