@@ -2,7 +2,7 @@ import psycopg2
 from datetime import datetime
 import os
 from dotenv import load_dotenv
-#from flask.api.numtoword import *
+from numtoword import *
 from babel.numbers import format_currency
 
 load_dotenv()

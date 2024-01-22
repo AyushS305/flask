@@ -44,10 +44,10 @@
             <td><input type ="date" name = "end_date" required /></td>
          </table>
          <p><b>House&emsp;</b>
-            <input type="radio" id="All" name="House" value="All">
+            <input type="radio" id="All" name="house" value="All">
             <label for="All">House Summary</label>
             {% for value in house %}
-         <input type="radio" id="{{ value }}" name="House" value="{{ value }}">
+         <input type="radio" id="{{ value }}" name="house" value="{{ value }}">
          <label for="{{ value }}">{{ value}}</label>
          {% endfor %}
          <p><b>Student Status&emsp;</b>

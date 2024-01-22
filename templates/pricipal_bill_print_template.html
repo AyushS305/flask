@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>{{ result['Invoice No.'] }}</title>
+        <title>{{ header['inv_no'] }}</title>
         <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/BbHwVwx1/logo.png">
         <style>
         @media print {
@@ -49,53 +49,33 @@
          </style>
       </head>
    <body>
-         <h1><img src= "{{ image }}" alt="PRIKAWAY"></h1>
-         
-         <div class="container" style="display: flex; height: 60px; text-align: left;">
-          <div style="width: 50%;">
-            <b>To,</b><br>
-            <b>The Principal,</b><br>
-            <b>{{ image['school_name'] }}</b>
-          </div>
-          <div style="flex-grow: 1; text-align: right; ">
-            {% for key, value in result.items() %}
-            {% if key == 'Date' %}
-                 <b>Date: {{ value }}</b><br>
-                {% endif %}
-            {% if key == 'Invoice No.' %}
-               <b>Invoice No.:{{ value }}  </b>
-               {% endif %}
-               {% endfor %}
-          </div>
-      </div>
-        <br>
-         <table border=1>
-            <th style="background-color: rgb(173, 171, 171);">Item Name</th>
-            <th style="background-color: rgb(173, 171, 171);">Price Per Unit</th>
-            <th style="background-color: rgb(173, 171, 171);">Total Quantity</th>
-            <th style="background-color: rgb(173, 171, 171);">Total Price</th>
-            {% for key, value in result.items() %}
-            {% if key not in('Grand Total','Word Amount','Item Total', 'Date', 'Invoice No.') %}
-            <tr >
-                <th style="width: 400px"> {{ key }} </th>
-               <td style="width: 100px"> {{ value[0] }} </td>
-               <td style="width: 120px"> {{ value[1] }} </td>
-               <td style="width: 100px"> {{ value[2] }} </td>
-            </tr>
-            {% endif %}
-                {% endfor %}
-           
-         </table>
-         <br>
-         
-         <table border=1>
-            <tr><th style="background-color: rgb(199, 196, 196);">TOTAL NO. OF ITEMS</th>
-            <td><b>{{result['Item Total']}}</b></td></tr>
-            <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE</th>
-            <td><b>{{result['Grand Total']}}</b></td></tr>
-            <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE IN WORDS</th>
-            <td><b>{{result['Word Amount']}} only</b></td></tr>
-         </table>
+    <h1><img src= "{{ image }}" alt="PRIKAWAY"></h1>
+    <p align="right"><a href="/homepage">Homepage</a></p>
+    <div class="container" style="display: flex; height: 60px; text-align: left;">
+     <div style="width: 50%;">
+       <b>To,</b><br>
+       <b>The Principal,</b><br>
+       <b>{{ header['school_name'] }}</b>
+     </div>
+     <div style="flex-grow: 1; text-align: right; ">
+       <b>Date: {{ header['bill_date'] }}</b><br>
+       <b>Invoice No.:{{ header['inv_no'] }}  </b>
+     </div>
+  </div>
+   <br>
+    <br>
+    {{ products | safe }}
+    <br>
+    <table border=1>
+       <tr>
+       <th style="background-color: rgb(199, 196, 196);">TOTAL NO. OF ITEMS</th>
+       <td><b>{{ header['item_quantity'] }}</b></td></tr>
+       <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE</th>
+       <td><b>{{ header['total_price'] }}</b></td></tr>
+       <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE IN WORDS</th>
+       <td><b>{{ header['word_amount'] }} only</b></td>
+     </tr>        
+    </table>
          <h5>PRINCIPAL'S SIGNATURE &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp;AUTHORISED SIGNATURE	</h5>   
          <input id="printbtn" type = "Submit" value = "Print Bill" onclick="window.print();return false;window.location.href='/print_invoice';">
          <br>

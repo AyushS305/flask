@@ -1,13 +1,7 @@
 <html>
     <head>
-        <title>PRINT COVER</title>
-        <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/BbHwVwx1/logo.png">
+        <title>CONFIRM DETAILS</title>
         <style>
-        @media print {
-                      #printbtn  {
-                        display: none;
-                        }
-                    } 
          h1 {
            text-align: center;
            display: block;
@@ -49,6 +43,7 @@
          </style>
       </head>
    <body>
+    <form action = "/print_house_cover_page" method = "POST">
          <h1><img src= "{{ image }}" alt="PRIKAWAY"></h1>
          <p align="right"><a href="/homepage">Homepage</a></p>
          {% if house_name =='All'%}
@@ -69,11 +64,8 @@
          </table>
          <br>
          <h5>HOUSE MASTER'S SIGNATURE &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp; &emsp;AUTHORISED SIGNATURE	</h5>  
-         <br>
-         <input id='printbtn' type = "Submit" value = "Print Cover Page" onclick="window.print();return false;window.location.href='/print_invoice';">
-         <br>
-         <form action="/homepage">
-            <input id='printbtn' type="submit" value="Go to Homepage" />
-        </form> 
+         <input type = "Submit" value = "Confirm details & Print Cover Page" >
+         
+         </form>
         </body>
 </html>
