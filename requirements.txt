@@ -1,7 +1,5 @@
 pandas
 flask
-flask_login
-psycopg2
 flask_mail
 datetime
 Babel

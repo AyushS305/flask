@@ -218,7 +218,7 @@ def stock_input(dict_with_data,school):
             for y in dict_with_data[x[1]]:
                 z=y.split(':')
                 cur=pgsql()
-                query="""select stock_present from inventory
+                query="""select stock_present from inventory                             
                             where id=%s and school_id=%s and size=%s"""
                 val=cur.query_execute(query,(x[0],school,int(z[0])))
                 if len(val)==0:

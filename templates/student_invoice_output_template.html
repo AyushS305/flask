@@ -37,57 +37,17 @@
     <form action = "/print_invoice" method = "POST" id="'form" onsubmit="myButton.disabled=true; myButton.style.opacity='0.5'; return true;">
          <h1><img src= "{{ image }}" alt="PRIKAWAY"></h1>
          <p align="right"><a href="/homepage">Homepage</a></p>
-         <table border=1>
-            <tr >
-            {% for key, value in output.items() %}
-                {% if key in ['Name','Class','Roll No.', 'Date', 'House']%}
-                       <th style="width: 200px; background-color: rgb(173, 171, 171);"> {{ key }} </th>
-
-                {% endif %}
-            {% endfor %}
-            </tr>
-            <tr>
-            {% for key, value in output.items() %}
-                {% if key in ['Name','Class','Roll No.', 'Date', 'House']%}
-                        <td> {{ value }} </td>
-                {% endif %}
-          {% endfor %}
-        </tr>
-         </table>
+         {{ header | safe }}
+         <br>
+         {{ products | safe }}
          <br>
          <table border=1>
-            <th style="background-color: rgb(173, 171, 171);">Item Name</th>
-            <th style="background-color: rgb(173, 171, 171);">Size</th>
-            <th style="background-color: rgb(173, 171, 171);">Quantity</th>
-            <th style="background-color: rgb(173, 171, 171);">Price</th>
-            <th style="background-color: rgb(173, 171, 171);">Total</th>
-            {% for key, value in output.items() %}
-            {% if key not in ['Name','Class','Roll No.', 'Date', 'House', 'Grand Total', 'Word Amount', 'Item Total'] and '_size' not in key%}
-            <tr>
-               <th style="width: 400px"> {{ key }} </th>
-               {% for key1,value1 in output.items() %}
-               {% if '_size' in key1 and key in key1 %}
-               <td style="width: 100px"> {{ value1 }} </td>
-               {% endif %}
-               {% endfor %}
-               <td style="width: 100px"> {{ value[0] }} </td>
-               <td style="width: 150px"> {{ value[1] }} </td>
-               <td style="width: 150px"> {{ value[2] }} </td>
-            </tr>
-            {% endif %}
-         {% endfor %}         
-         </table>
-         <br>
-         <table border=1>
-            <tr><th style="background-color: rgb(199, 196, 196);">TOTAL NO. OF ITEMS</th>
-            <td>{{output['Item Total']}}</td></tr>
-            <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE</th>
-            <td>{{output['Grand Total']}}</td></tr>
-            <tr><th style="background-color: rgb(199, 196, 196);">TOTAL AMOUNT PAYABLE IN WORDS</th>
-            <td>{{output['Word Amount']}}</td></tr>
+            <tr><th style="background-color: rgb(199, 196, 196);">Total Amount Payable(In words)</th>
+            <td>{{ word_amount }}</td></tr>
          </table>
          <br>
          <img src="https://i.postimg.cc/qMhLmnM8/sig-table.png" width="1000px", height="200px">
+         <br>
          <br>
          <input type = "Submit" name="myButton" value = "Confirm details & Print Invoice" >
          </form>         

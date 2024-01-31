@@ -2,3 +2,4 @@ __pycache__
 .ipynb_checkpoints
 flask_session
 .env
+db_processor.py

@@ -28,7 +28,11 @@
         <h1 align="center"><img src="https://i.postimg.cc/BbHwVwx1/logo.png" alt="PRIKAWAY" width="50",height="50"> PRIKAWAY PRIVATE LIMITED GURUGRAM</h1>
         <h5 align="right">WELCOME {{ sync_user['username'] }}</h4>
         <p align="right"><a href="/logout">Logout</a></p>
-        <h2>WHAT WOULD YOU LIKE TO DO TODAY</h2>
+        {% if sync_user['school_id'] == 2 %}
+        <h1 style="background-color: rgb(173, 226, 170); color: black;">TUCK SHOP & RAASHAN SHOP MANAGEMENT SYSTEM</h1>
+        {% else %}
+        <h1 style="background-color: rgb(173, 226, 170); color: black;">TUCK SHOP MANAGEMENT SYSTEM</h1>
+        {% endif %}
         <p><a href="/input">ENTER DETAILS AND PRINT STUDENT INVOICE</a></p>
         <p><a href='/delete_invoice_input'>DELETE STUDENT INVOICE</a></p>
         <p><a href='/change_invoice_status_input'>CHANGE STUDENT INVOICE STATUS AS TC/LEAVE</a></p>
@@ -36,9 +40,9 @@
         <p><a href='/edit_invoice'>EDIT STUDENT INVOICE</a></p>
         <p><a href='/principal_bill'>GENERATE BILL FOR PRINCIPAL</a></p>
         <p><a href='/cover_page_input'>GENERATE COVER PAGES</a></p>
-        <p><a href='/inventory_input'>ENTER INVENTORY</a></p>
-        <p><a href='/inventory_view'>VIEW INVENTORY</a></p>
-        <p><a href='/inventory_modify'>MODIFY INVENTORY</a></p>
+        <p><a href='/inventory_input'>ENTER INVENTORY (FOR NEW ITEMS THAT ARRIVE IN EACH DEMAND ORDER)</a></p>
+        <p><a href='/inventory_view'>VIEW INVENTORY (FOR VIEWING THE CURRENT INVENTORY OF TUCK SHOP)</a></p>
+        <p><a href='/inventory_modify'>MODIFY INVENTORY (FOR CORRECTING THE STOCK PRESENT OF ITEMS THAT ARE ALREADY IN THE TUCK SHOP)</a></p>
         {% if sync_user['school_id'] == 2 %}
         <p><a href='/select_raashan_tender'>ENTER DETAILS AND PRINT RAASHAN BILL</a></p>
         {% endif %}

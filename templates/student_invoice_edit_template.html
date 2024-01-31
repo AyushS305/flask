@@ -39,19 +39,19 @@
          <h5>PLEASE NOTE THAT EDITING ANY INVOICE WILL OVERWRITE THE INITIAL INVOICE WITH ALL THE CHANGES MADE AND THIS PROCESS IS IRREVERSIBLE</h5>
          <table>
             <td><b>Name</b></td>
-            <td><input type = "text" name = "Name" required value="{{out['Name']}}"/></td>
+            <td><input type = "text" name = "Name" required value="{{out['student_name']}}"/></td>
             <td><b>&emsp;Class</b></td>
-            <td><input type = "number" name = "Class" required value="{{out['Class']}}"/></td>
+            <td><input type = "number" name = "Class" required value="{{out['class']}}"/></td>
             <td><b>&emsp;Roll No.</b></td>
-            <td><input type = "number" name = "Roll No." required value="{{out['Roll No.']}}"/></td>
+            <td><input type = "number" name = "Roll No." required value="{{out['roll_no']}}"/></td>
             <td><b>&emsp;Date</b></td>
-            <td><input type ="date" name = "Date" required value="{{out['Date']}}"/></td>
+            <td><input type ="date" name = "Date" required value="{{out['date_of_purchase']}}"/></td>
          </table>
          <p><b>House&emsp;</b>
          {% for value in house %}
-         {% if value == out['House'] %}
-         <input type="radio" id="{{ value }}" name="House" value="{{ out['House'] }}" checked="checked">
-         <label for="{{ value }}">{{ value}}</label>
+         {% if value == out['house_name'] %}
+         <input type="radio" id="{{ value }}" name="House" value="{{ out['house_name'] }}" checked="checked">
+         <label for="{{ value }}">{{ value }}</label>
          {%else%}
          <input type="radio" id="{{ value }}" name="House" value="{{ value }}">
          <label for="{{ value }}">{{ value}}</label>

@@ -4,10 +4,11 @@
         <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/BbHwVwx1/logo.png">
         <style>
        
-         h1 {
+       h1 {
            text-align: center;
            display: block;
-           
+           border: 1px black;
+           background-color: grey;
            
          }
          img {
@@ -34,20 +35,18 @@
          </style>
       </head>
    <body>
-         <h1><img src= "{{ image }}" alt="PRIKAWAY"></h1>
-         <p align="right"><a href="/homepage">Homepage</a></p>
+      <h1 align="center" style=""><img src="https://i.postimg.cc/BbHwVwx1/logo.png" alt="PRIKAWAY" width="50",height="50"> PRIKAWAY PRIVATE LIMITED GURUGRAM</h1>
+      <p align="right"><a href="/homepage">Homepage</a></p>
          <br>
          <h2><b>TOTAL INVENTORY</b></h2>   
          <br>
          <table border=1>
             <th style="background-color: rgb(173, 171, 171);">Item Name</th>
-            <th style="background-color: rgb(173, 171, 171);">Size</th>
             <th style="background-color: rgb(173, 171, 171);">Current Stock(no. of pieces)</th>
-            {% for item in output %}
+            {% for key in output %}
             <tr>
-               <td> {{ item[0] }} </td>
-               <td style="width: 100px"> {{ item[1] }} </td>
-               <td> {{ item[2] }} </td>
+               <td> {{ key }} </td>
+               <td> {{ output[key]|safe }} </td>
             </tr>
          {% endfor %}
          </table>

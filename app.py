@@ -1,27 +1,25 @@
-from flask import Flask, render_template, request, redirect, url_for, session
-from flask_mail import Mail, Message
-from db_processor import *
+from flask import Flask, render_template, request, redirect, url_for, session, json
+#from db_processor import *
 from date_format_change import *
 from process_format import *
 from flask_session import Session
 from datetime import timedelta
 from dotenv import load_dotenv
 import os
-import json
 import requests
 
+load_dotenv() #loading environment variables from .env 
 
-load_dotenv()
-
-app = Flask(__name__)
+app = Flask(__name__) #creating app
+#app configuration
 app.config['SECRET_KEY']=os.environ['SECRET_KEY']
 app.config["SESSION_TYPE"] = "filesystem"
 app.config['SESSION_PERMANENT'] = True
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=15)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
-Session(app)
+Session(app) #creating session variable
 
-@app.route('/', methods = ['POST', 'GET'])
+@app.route('/', methods = ['POST', 'GET']) #landing page
 def auth():
    error=None
    if request.method == 'POST':
@@ -53,19 +51,18 @@ def input ():
    #set flag key in session list to None
    session['flag']=None
    #house search API call
-   response = requests.get("http://127.1.1.1:8080/db_house_search", params={'school_id':session['school_id']})
+   response = requests.get(os.environ['DB_SEARCH_API']+"db_house_search", params={'school_id':session['school_id']})
    #converting to dictionary
    dictr = response.json()
    #converting to list
    house_list=list(dictr['house_name'].values())
    #product search API call
-   response = requests.get("http://127.1.1.1:8080/db_product_search", params={'school_id':session['school_id']})
-   #converting to diction
+   response = requests.get(os.environ['DB_SEARCH_API']+"db_product_search", params={'school_id':session['school_id']})
+   #converting to dictionary
    dictr = response.json()
-   #converting to list
-   product_list=list(dictr['product_price'].keys())
+   df=pd.DataFrame(dictr, columns=['product_name', 'product_price'])
    #rendering template
-   return render_template('student_invoice_input_template.html', items=product_list, house=house_list)
+   return render_template('student_invoice_input_template.html', items=df['product_name'], house=house_list)
 
 @app.route('/output',methods = ['POST', 'GET'])
 def output():
@@ -74,45 +71,46 @@ def output():
       global sync
       output=input_template_process(out, session['school_id'])
       sync=output
-      return render_template("student_invoice_output_template.html",output = output, image=session['img_url'])
+      return render_template("student_invoice_output_template.html", header=output['header'].to_html(classes='data', index=False, justify='center').replace('<th>','<th style = "background-color: rgb(173, 171, 171)">'), products=output['products'].to_html(classes='data', index=True, justify='center').replace('<th>','<th style = "background-color: rgb(173, 171, 171)">'), word_amount = output['word_amount'], image=session['img_url'])
    
 @app.route('/print_invoice',methods = ['POST', 'GET'])
 def print_invoice():
    if request.method == 'POST':
-      output=sync
       if session['flag'] is not None:
          action="EDITED"
-         db_delete_invoice(session['flag'])
+         #db_delete_invoice(session['flag'])
+         requests.get(os.environ['DB_SEARCH_API']+'db_delete_student_invoice', params=session['flag'])
       else:
          action="GENERATED"
+      json_output={}
       #save student invoice details API call
-      merge_dict={}
-      header={}
-      products={}
-      merge_dict['session']=session
-      for x in output.keys():
-         if x in ['Roll No.','Name','Class','House','Date', 'Grand Total', 'Word Amount', 'Item Total']:
-            header[x]=output[x]
-         else:
-            products[x]=output[x]
-      merge_dict['header']= header
-      merge_dict['products']= products
-      merge_dict['products']={k:v for k,v in merge_dict['products'].items() if v}
-      json_output=json.dumps(merge_dict, indent=4, default=str)
-      response = requests.post("http://127.1.1.1:8080/db_save_student_invoice", json=json_output) #posting data to API
-      output['Invoice No.']= response.json()
-      output['Date']=change_date_format(output['Date'])
-      output=output_template_format(output)
-      ping="STUDENT INVOICE "+action+ "\nSCHOOL NAME: "+ session['school_name']+"\nINVOICE NO: "+ output['Invoice No.'] +"\n"+ action+ " BY USER: "+session['username']+"\n STUDENT NAME: "+ output['Name']+"\n CLASS: "+ output['Class']+"\n ROLL NO: " +output['Roll No.']+"\n HOUSE: "+ output['House']+"\n INVOICE DATE: " +output['Date']+"\n TOTAL ITEMS: "+ str(output['Item Total'])+"\n TOTAL AMOUNT: " +output['Grand Total']
+      json_output['header']=sync['header'].to_json(orient='columns')
+      json_output['products']=sync['products'].to_json(orient='columns')
+      json_output['word_amount']=sync['word_amount']
+      json_output['school_id']=session['school_id']
+      json_output['user_id']=session['user_id']
+      json_output=json.dumps(json_output)
+      response = requests.post(os.environ['DB_SEARCH_API']+"db_save_student_invoice", json=json_output) #posting data to API
+      sync['header']=sync['header'].assign(inv_no= response.json())
+      sync['header'].rename(columns={'inv_no':'Invoice No.'}, inplace=True)
+      df_header=sync['header']
+      df_header['Grand Total']=df_header['Grand Total'].apply(lambda x:format_currency(x, 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False))
+      df_products=sync['products']
+      df_products['Unit Price']=df_products['Unit Price'].apply(lambda x:format_currency(x, 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False))
+      df_products['Total Price']=df_products['Total Price'].apply(lambda x:format_currency(x, 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False))
+      ping="STUDENT INVOICE "+action+ "\nSCHOOL NAME: "+ session['school_name']+"\nINVOICE NO: "+ df_header['Invoice No.'][0] +"\n"+ action+ " BY USER: "+session['username']+"\n STUDENT NAME: "+ df_header['Name'][0]+"\n CLASS: "+ df_header['Class'][0]+"\n ROLL NO: " +df_header['Roll No.'][0]+"\n HOUSE: "+ df_header['House'][0]+"\n INVOICE DATE: " +df_header['Date'][0]+"\n TOTAL ITEMS: "+ str(df_header['Total Items'][0])+"\n TOTAL AMOUNT: " +df_header['Grand Total'][0]
       #call telegram messenger API
       requests.post(os.environ['TELEGRAM_MESSENGER'], json=json.dumps(ping))
       email_dict={} #email dict to be sent to email messenger api
       email_dict['img_url']=session['img_url']
-      email_dict['output']=output
+      email_dict['header']=df_header.to_json(orient='columns')
+      email_dict['products']=df_products.to_json(orient='columns')
       email_dict['action']=action
+      email_dict['word_amount']=sync['word_amount']
+      email_dict['img_url']=session['img_url']
       #call email messenger api
-      requests.post(os.environ['STUDENT_INVOICE_EMAILER'], json=json.dumps(email_dict))
-      return render_template("student_invoice_print_template.html",output = output, image=session['img_url'])
+      requests.post(os.environ['EMAIL_API']+"student_invoice_emailer", json=json.dumps(email_dict))
+      return render_template("student_invoice_print_template.html",header=df_header.to_html(classes='data', index=False, justify='center').replace('<th>','<th style = "background-color: rgb(173, 171, 171)">'), products=df_products.to_html(classes='data', index=True, justify='center').replace('<th>','<th style = "background-color: rgb(173, 171, 171)">'), word_amount = sync['word_amount'], image=session['img_url'])
    
 @app.route('/search_invoice',methods = ['POST', 'GET'])
 def search_invoice():
@@ -123,7 +121,7 @@ def view_invoice():
    if request.method == 'POST':
       out = request.form.to_dict()
       #product search API call
-      response = requests.get("http://127.1.1.1:8080/db_search_student_invoice", params={'inv_no':out['inv_no'], 'date_of_purchase':out['date_of_purchase']})
+      response = requests.get(os.environ['DB_SEARCH_API']+"db_search_student_invoice", params={'inv_no':out['inv_no'], 'date_of_purchase':out['date_of_purchase']})
       respons=response.json()
       if respons['found'] == False:
          return render_template("student_invoice_not_found.html")
@@ -139,7 +137,7 @@ def view_invoice():
          respons_header['date_of_purchase'][0] = x.date()
          respons_header['date_of_purchase'][0]=change_date_format(str(respons_header['date_of_purchase'][0])) 
          tc_leave=respons_header['tc_leave'][0]
-         word_amount=respons_header['Word Amount'][0]
+         word_amount=respons_header['Word Amount']
          word_amount=word_amount[0]
          respons_header.drop(respons_header.iloc[:,6:9], inplace=True, axis=1)
          respons_header.rename(columns={'student_name':'Name', 'class':'Class', 'roll_no':'Roll No.', 'date_of_purchase':'Purchase Date', 'house_name':'House', 'bill_no':'Invoice No.', 'item_quantity':'Total Items', 'total_price':'Total Price'}, inplace=True)
@@ -153,7 +151,7 @@ def principal_bill():
 def generate_bill():
    if request.method == 'POST':
       out = request.form.to_dict()
-      res=requests.get("http://127.1.1.1:8080/db_product_pivot_principal_bill", params={'start_date':out['start_date'], 'end_date':out['end_date'],'school_id':session['school_id'], 'tc_leave':out['tc_leave']})
+      res=requests.get(os.environ['DB_SEARCH_API']+"db_product_pivot_principal_bill", params={'start_date':out['start_date'], 'end_date':out['end_date'],'school_id':session['school_id'], 'tc_leave':out['tc_leave']})
       res=res.json()
       header_data=res['header']
       product_data=json.loads(res['products'])
@@ -173,7 +171,7 @@ def print_school_bill():
       email_dict['header']=header_data
       email_dict['products']=sync_school_bill['products']
       #call email messenger api  
-      requests.post(os.environ['SCHOOL_PRINCIPAL_INVOICE_EMAILER'], json=json.dumps(email_dict))
+      requests.post(os.environ['EMAIL_API']+"school_principal_bill_emailer", json=json.dumps(email_dict))
       ping="BILL TO PRINCIPAL GENERATED"+"\nSCHOOL NAME: "+ header_data['school_name']+"\nINVOICE NO: "+ header_data['inv_no'] +"\n GENERATED BY USER: "+session['username']+"\n INVOICE DATE: " +header_data['bill_date']+"\n TOTAL ITEMS: "+ str(header_data['item_quantity'])+"\n TOTAL AMOUNT: " +header_data['total_price']
       #call telegram messenger API
       requests.post(os.environ['TELEGRAM_MESSENGER'], json=json.dumps(ping))
@@ -182,7 +180,7 @@ def print_school_bill():
 @app.route('/cover_page_input', methods=['POST','GET'])
 def cover_page_input():
    #house search API call
-   response = requests.get("http://127.1.1.1:8080/db_house_search", params={'school_id':session['school_id']})
+   response = requests.get(os.environ['DB_SEARCH_API']+"db_house_search", params={'school_id':session['school_id']})
    #converting to dictionary
    dictr = response.json()
    #converting to list
@@ -194,10 +192,9 @@ def confirm_cover_page():
    if request.method == 'POST':
       data = request.form.to_dict()
       if data['house'] == 'All':
-         response = requests.get("http://127.1.1.1:8080/db_all_house_cover_page", params={'start_date':data['start_date'], 'end_date': data['end_date'], 'school_id':session['school_id'], 'tc_leave':data['tc_leave']})
+         response = requests.get(os.environ['DB_SEARCH_API']+"db_all_house_cover_page", params={'start_date':data['start_date'], 'end_date': data['end_date'], 'school_id':session['school_id'], 'tc_leave':data['tc_leave']})
       else:
-         response = requests.get("http://127.1.1.1:8080/db_individual_house_cover_page", params={'start_date':data['start_date'], 'end_date': data['end_date'], 'house':data['house'], 'school_id':session['school_id'], 'tc_leave':data['tc_leave']})
-      
+         response = requests.get(os.environ['DB_SEARCH_API']+"db_individual_house_cover_page", params={'start_date':data['start_date'], 'end_date': data['end_date'], 'house':data['house'], 'school_id':session['school_id'], 'tc_leave':data['tc_leave']})     
       response=response.json()
       house_data=json.loads(response['data'])
       house_data=pd.DataFrame(house_data, columns=house_data.keys())
@@ -214,7 +211,7 @@ def print_house_cover_page():
       house_data=json.loads(sync_cover_data['data'])
       house_data=pd.DataFrame(house_data, columns=house_data.keys())
       header_data=sync_cover_data['header']  
-      requests.post(os.environ['HOUSE_COVER_EMAILER'], json=json.dumps(sync_cover_data))
+      requests.post(os.environ['EMAIL_API']+"house_cover_emailer", json=json.dumps(sync_cover_data))
       ping="COVER PAGE GENERATED"+"\nSCHOOL NAME: "+ session['school_name']+"\n GENERATED BY USER: "+session['username']+"\n TOTAL ITEMS: "+ str(header_data['item_quantity'])+"\n TOTAL AMOUNT: " +header_data['total_price']
       #call telegram API
       requests.post(os.environ['TELEGRAM_MESSENGER'], json=json.dumps(ping))
@@ -228,14 +225,14 @@ def delete_invoice_input():
 def delete_invoice_confirmed():
    if request.method == 'POST':
       data=request.form.to_dict()
-      response=requests.get('http://127.1.1.1:8080/db_check_student_invoice_present', params=data )
+      response=requests.get(os.environ['DB_SEARCH_API']+'db_check_student_invoice_present', params=data )
       response=response.json()
       if response['found'] == False:
          return render_template("student_invoice_not_found.html")
       else:
-         response=requests.get('http://127.1.1.1:8080/db_delete_student_invoice', params=data )
+         response=requests.get(os.environ['DB_SEARCH_API']+'db_delete_student_invoice', params=data )
          response=response.json()      
-         requests.post(os.environ['DELETE_INVOICE_EMAILER'], json=json.dumps(data['inv_no']))
+         requests.post(os.environ['EMAIL_API']+"delete_invoice_emailer", json=json.dumps(data['inv_no']))
          ping=response+"\n DELETED BY USER: "+session['username']
          #call telegram API
          requests.post(os.environ['TELEGRAM_MESSENGER'], json=json.dumps(ping))
@@ -250,14 +247,14 @@ def change_invoice_status_input():
 def change_invoice_status_confirmed():
    if request.method == 'POST':
       data=request.form.to_dict()
-      response=requests.get('http://127.1.1.1:8080/db_check_student_invoice_present', params={'inv_no':data['inv_no'], 'date_of_purchase':data['date_of_purchase']} )
+      response=requests.get(os.environ['DB_SEARCH_API']+'db_check_student_invoice_present', params={'inv_no':data['inv_no'], 'date_of_purchase':data['date_of_purchase']} )
       response=response.json()
       if response['found'] == False:
          return render_template("student_invoice_not_found.html")
       else:
-         response1=requests.get('http://127.1.1.1:8080/db_change_student_invoice_tc_leave_status', params=data )
+         response1=requests.get(os.environ['DB_SEARCH_API']+'db_change_student_invoice_tc_leave_status', params=data )
          response1=response1.json()      
-         requests.post(os.environ['UPDATE_TC_LEAVE_STATUS_OF_INVOICE_EMAILER'], json=json.dumps({'inv_no':data['inv_no'], 'tc_leave':data['tc_leave']}))
+         requests.post(os.environ['EMAIL_API']+"update_tc_leave_status_emailer", json=json.dumps({'inv_no':data['inv_no'], 'tc_leave':data['tc_leave']}))
          ping=response1 +" BY USER "+session['username']
          requests.post(os.environ['TELEGRAM_MESSENGER'], json=json.dumps(ping))
          return render_template("change_invoice_status_confirmed.html", result=response1)
@@ -272,7 +269,16 @@ def input_raashan_details():
    if request.method == 'POST':
       data=request.form.to_dict()
       session['tender_no']=data['tender']
-      items=db_raashan_product_search(data['tender'])
+      #items=db_raashan_product_search(data['tender'])
+      #product search API call
+      response = requests.get(os.environ['DB_SEARCH_API']+"db_raashan_products_search", params={'tender':data['tender']})
+      #converting to dictionary
+      response = response.json()
+      df=pd.DataFrame(response)
+      df.rename(columns={'tender_s_no':'Tender S. No.','item_name':'Item Name','rate':'Rate per unit','gst_amount':'GST Amount per unit', 'item_unit':'Unit'}, inplace=True)
+      items=[]
+      for x in df.itertuples(index=False):
+         items.append(x)
       return render_template('input_raashan_details.html', items=items)
    
 @app.route('/confirm_raashan_details', methods=['POST', 'GET'])
@@ -282,27 +288,33 @@ def confirm_raashan_details():
       result=check_raashan_details(data, session['tender_no'])
       global sync_raashan
       sync_raashan=result
-      return render_template('confirm_raashan_details.html', result=result, image=session)
+      header=json.loads(result['header'])
+      items=pd.DataFrame(json.loads(result['products']))
+      return render_template('confirm_raashan_details.html', result=header, items=items.to_html(classes='data', justify='center').replace('<th>','<th style = "background-color: rgb(173, 171, 171)">'), image=session)
 
 @app.route('/print_raashan_bill', methods=['POST', 'GET'])
 def print_raashan_bill():
    if request.method == 'POST':
       result=sync_raashan
-      save_raashan_line_items(result, session['tender_no'])
-      result['start_date']=change_date_format(result['start_date'])
-      result['end_date']=change_date_format(result['end_date'])
-      result['inv_date']=change_date_format(result['inv_date'])
-      msg = Message(
-                "RAASHAN BILL TO SAINIK SCHOOL GOPALGANJ PRINCIPAL GENERATED# "+str(result['Invoice No.']),
-                sender =os.environ['SENDER'],
-                recipients = [os.environ['RECIPIENTS']]
-               )
-      msg.body = " Please see the details below."
-      msg.html = render_template("print_raashan_bill.html", result=result, image=session)
-      mail.send(msg)
-      ping="RAASHAN BILL TO SAINIK SCHOOL GOPALGANJ PRINCIPAL GENERATED# "+"\nINVOICE NO: "+ str(result['Invoice No.']) +"\n GENERATED BY USER: "+session['username']+"\n TOTAL AMOUNT: " +str(result['Grand Total'])
-      #send_message(ping)
-      return render_template('print_raashan_bill.html', result=result, image=session)
+      header=json.loads(result['header'])
+      items=pd.DataFrame(json.loads(result['products']))
+      items['Rate per Unit']=items['Rate per Unit'].apply(lambda x:format_currency(x, 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False))
+      items['GST Amount per Unit']=items['GST Amount per Unit'].apply(lambda x:format_currency(x, 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False))
+      items['Total Price']=items['Total Price'].apply(lambda x:format_currency(x, 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False))
+      header['Grand Total']=format_currency(header['Grand Total'], 'INR', format=u'#,##0\xa0¤', locale='en_IN', currency_digits=False)
+      sync_raashan['session']={'school_name':session['school_name'], 'img_url':session['img_url']}
+      #save_raashan_line_items(result, session['tender_no'])
+      requests.post(os.environ['DB_SEARCH_API']+"db_save_raashan_bill_details", json=sync_raashan)
+      header['start_date']=change_date_format(header['start_date'])
+      header['end_date']=change_date_format(header['end_date'])
+      header['inv_date']=change_date_format(header['inv_date'])
+      #create ping
+      ping="RAASHAN BILL TO SAINIK SCHOOL GOPALGANJ PRINCIPAL GENERATED# "+"\nINVOICE NO: "+ str(header['Invoice No.']) +"\n GENERATED BY USER: "+session['username']+"\n TOTAL AMOUNT: " +str(header['Grand Total'])
+      #call email messenger api
+      requests.post(os.environ['EMAIL_API']+"raashan_bill_emailer", json=sync_raashan)
+      #call telegram API
+      requests.post(os.environ['TELEGRAM_MESSENGER'], json=json.dumps(ping))
+      return render_template('print_raashan_bill.html', result=header, items=items.to_html(classes='data', justify='center').replace('<th>','<th style = "background-color: rgb(173, 171, 171)">'), image=session)
 
 @app.route('/analytics', methods=['POST','GET'])
 def analytics():
@@ -321,53 +333,65 @@ def looker_dashboard():
 
 @app.route('/inventory_input', methods = ['POST', 'GET'])
 def inventory_input ():
-   y=[]
-   for rows in db_product_search(session['school_id']):
-      y.append(rows[1])
-   return render_template('stock_input_template.html', items=y)
+   #call to product search API
+   response = requests.get(os.environ['DB_SEARCH_API']+"db_product_search", params={'school_id':session['school_id']})
+   #converting to dictionary
+   dictr = response.json()
+   df=pd.DataFrame(dictr, columns=['product_name', 'product_price'])
+   #rendering template
+   return render_template('stock_input_template.html', items=df['product_name'])
 
 @app.route('/inventory_output',methods = ['POST', 'GET'])
 def inventory_output():
    if request.method == 'POST':
       out = request.form.to_dict()
       output={}
+      json_data={}
       for x in out:
          if out[x] == '':
             continue
          else:   
             output[x]=out[x].split(",")
-      stock_input(output,session['school_id'])
-      msg = Message(
-                "STOCK INPUT SUCCESSFUL",
-                sender =os.environ['SENDER'],
-                recipients = [os.environ['RECIPIENTS']]
-               )
+      #stock_input(output,session['school_id'])
+      json_data['school_id']=session['school_id']
+      json_data['products']=output      
+      requests.post(os.environ['DB_SEARCH_API']+"db_stock_input", json=json.dumps(json_data))
+      #create ping  
       ping="STOCK SUCCESSFULLY ENTERED \n BY USER: "+session['username']+"\n FOR SCHOOL: "+session['school_name']+"\n PLEASE READ IN THE FORMAT 'ITEM NAME':['SIZE:QUANTITY'] \n"+str(output)
-      msg.body = ping
-      mail.send(msg)
-      #send_message(ping)
+      #call email messenger api
+      requests.post(os.environ['EMAIL_API']+"inventory_entry_emailer", json=json.dumps(ping))
+      #call telegram API
+      requests.post(os.environ['TELEGRAM_MESSENGER'], json=json.dumps(ping))
       return render_template("stock_input_success.html")
 
 @app.route('/inventory_view',methods = ['POST', 'GET'])
 def inventory_view():
-   output=view_stock(session['school_id'])
-   msg = Message(
-                "INVENTORY VIEWED BY USER: "+session['username'],
-                sender =os.environ['SENDER'],
-                recipients = [os.environ['RECIPIENTS']]
-               )
-   ping="INVENTORY VIEWED BY USER: "+session['username']+'\n'+str(output)
-   msg.body = ping
-   mail.send(msg)
-   send_message(ping)
-   return render_template('stock_view_template.html', output=output, image=session['img_url'])
+   #output=view_stock(session['school_id'])
+   response=requests.get(os.environ['DB_SEARCH_API']+"db_view_inventory", params={'school_id':session['school_id']})
+   response=response.json()
+   df=pd.DataFrame(response).transpose() #creating dataframe of the response received
+   html_dict={} #create empty dict to store the dataframe in html form
+   for x in df.index: #iterating over indices of df
+            temp=pd.DataFrame(df.loc[x,'stock_present']).transpose() #creating the size and quantity df
+            temp.set_index('size', inplace=True) #setting the index
+            html_dict[x]=temp.to_html(classes='data', justify='center').replace('<th>','<th style = "background-color: rgb(173, 171, 171)">') #stroing the html in the dict
+   #create ping
+   ping="INVENTORY VIEWED BY USER: "+session['username']
+   #call email messenger api
+   requests.post(os.environ['EMAIL_API']+"inventory_view_emailer", json=json.dumps({'ping':ping, 'username': session['username']}))
+   #call telegram API
+   requests.post(os.environ['TELEGRAM_MESSENGER'], json=json.dumps(ping))
+   return render_template('stock_view_template.html', output=html_dict)
 
 @app.route('/inventory_modify',methods = ['POST', 'GET'])
 def inventory_modify():
-   y=[]
-   for rows in db_product_search(session['school_id']):
-      y.append(rows[1])
-   return render_template('stock_modify_template.html', items=y)
+   #call to product search API
+   response = requests.get(os.environ['DB_SEARCH_API']+"db_product_search", params={'school_id':session['school_id']})
+   #converting to dictionary
+   dictr = response.json()
+   df=pd.DataFrame(dictr, columns=['product_name', 'product_price'])
+   #rendering template
+   return render_template('stock_modify_template.html', items=df['product_name'])
 
 @app.route('/inventory_modify_task',methods = ['POST', 'GET'])
 def inventory_modify_task():
@@ -379,17 +403,19 @@ def inventory_modify_task():
             continue
          else:   
             output[x]=out[x].split(",")
-      stock_modify(output,session['school_id'])
-      msg = Message(
-                "STOCK MODIFY SUCCESSFUL",
-                sender =os.environ['SENDER'],
-                recipients = [os.environ['RECIPIENTS']]
-               )
-      ping="STOCK SUCCESSFULLY MODIFIED \n BY USER: "+session['username']+"\n FOR SCHOOL: "+session['school_name']+"\n PLEASE READ IN THE FORMAT 'ITEM NAME':['SIZE:QUANTITY'] \n"+str(output)
-      msg.body = ping
-      mail.send(msg)
-      send_message(ping)
-      return render_template("stock_input_success.html")
+      #call inventory modify api
+      response=requests.post(os.environ['DB_SEARCH_API']+"db_update_inventory", json=json.dumps({'school_id':session['school_id'], 'products':output}))
+      response=response.json()
+      if response['response'] == False:
+         return render_template('stock_input_interrupt.html')
+      else:
+         #create ping
+         ping="STOCK SUCCESSFULLY MODIFIED \n BY USER: "+session['username']+"\n FOR SCHOOL: "+session['school_name']+"\n PLEASE READ IN THE FORMAT 'ITEM NAME':['SIZE:QUANTITY'] \n"+str(output)
+         #call email messenger api
+         requests.post(os.environ['EMAIL_API']+"inventory_modify_emailer", json=json.dumps(ping))
+         #call telegram API
+         requests.post(os.environ['TELEGRAM_MESSENGER'], json=json.dumps(ping))
+         return render_template("stock_input_success.html")
 
 @app.route('/edit_invoice', methods=['POST', 'GET'])
 def edit_invoice_input():
@@ -399,18 +425,36 @@ def edit_invoice_input():
 def edit_invoice_details():
    if request.method == 'POST':
       out=request.form.to_dict()
-      output=db_search_student_invoice(out)
-      if output == 'NF':
+      response=requests.get(os.environ['DB_SEARCH_API']+'db_search_student_invoice', params={'inv_no':out['inv_no'], 'date_of_purchase':out['date_of_purchase']} )
+      response=response.json()
+      if response['found'] == False:
          return render_template("student_invoice_not_found.html")
       else:
-         h=[]
-         y=[]
-         for rows in db_house_search(session['school_id']):
-            h.append(rows[0])
-         for rows in db_product_search(session['school_id']):
-            y.append(rows[1])
-         session['flag']=out  
-         return render_template("student_invoice_edit_template.html", out=output, items=y, house=h)
-
+         response1 = requests.get(os.environ['DB_SEARCH_API']+"db_house_search", params={'school_id':session['school_id']})
+         #converting to dictionary
+         dictr = response1.json()
+         #converting to list
+         house_list=list(dictr['house_name'].values())
+         #product search API call
+         response1 = requests.get(os.environ['DB_SEARCH_API']+"db_product_search", params={'school_id':session['school_id']})
+         #converting to diction
+         dictr = response1.json()
+         df=pd.DataFrame(dictr, columns=['product_name', 'product_price'])
+         session['flag']=out
+         dict_html={}
+         #deserializing header data and converting to dict
+         response['headers']=json.loads(response['headers'])
+         df_header=pd.DataFrame(response['headers'])
+         for x in df_header:
+            dict_html[x]=df_header[x][0]
+         x=datetime.utcfromtimestamp(dict_html['date_of_purchase']/1000)
+         dict_html['date_of_purchase'] = x.date()
+         #deserializing product data and converting to dict
+         response['products']=json.loads(response['products'])
+         df_products=pd.DataFrame(response['products'])
+         for x in df_products.index:
+            dict_html[df_products['product_name'][x]]=list([df_products['size'][x],df_products['item_quantity'][x]])      
+         return render_template("student_invoice_edit_template.html", out=dict_html, items=df['product_name'], house=house_list)
+         
 if __name__ == '__main__':
    app.run(debug = True)
