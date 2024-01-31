@@ -9,7 +9,7 @@ import json
 
 def input_template_process(out,x):  
 
-   response = requests.get("http://127.1.1.1:8080/db_product_search", params={'school_id':x})
+   response = requests.get(os.environ['DB_SEARCH_API']+"db_product_search", params={'school_id':x})
    dictr = response.json()
    df_products=pd.DataFrame(dictr)
    df_products.set_index('product_name',inplace=True) #creating dataframe of product data from database
@@ -116,7 +116,7 @@ def all_house_cover_process(res):
 def check_raashan_details(data,z):
    #result=db_raashan_product_search(z)
    #product search API call
-   response = requests.get("http://127.1.1.1:8080/db_raashan_products_search", params={'tender':z})
+   response = requests.get(os.environ['DB_SEARCH_API']+"db_raashan_products_search", params={'tender':z})
    #converting to dictionary
    response = response.json()
    df=pd.DataFrame(response)
