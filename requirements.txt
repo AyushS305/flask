@@ -8,3 +8,4 @@ regex
 Flask-Session
 requests
 python-dotenv
+psycopg2
