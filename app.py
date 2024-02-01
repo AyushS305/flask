@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, json
+from flask import Flask, render_template, request, redirect, url_for, session, json, jsonify
 #from db_processor import *
 from date_format_change import *
 from process_format import *
@@ -19,6 +19,11 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
 Session(app) #creating session variable
 
+@app.route('/check', methods=['GET']) #health check 
+def check():
+    if request.method == 'GET':
+        return jsonify({'result':'Service is live!'})
+    
 @app.route('/', methods = ['POST', 'GET']) #landing page
 def auth():
    error=None
