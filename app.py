@@ -134,13 +134,18 @@ def view_invoice():
          response_products.rename(columns={'product_name':'Product Name', 'size':'Product Size', 'item_quantity':'Item Quantity', 'product_price':'Unit Price', 'total_price':'Total Price'}, inplace=True)
          respons_header=pd.DataFrame(respons_header, columns=respons_header.keys())
          x=datetime.utcfromtimestamp(respons_header['date_of_purchase'][0]/1000)
-         respons_header['date_of_purchase'][0] = x.date()
-         respons_header['date_of_purchase'][0]=change_date_format(str(respons_header['date_of_purchase'][0])) 
+         temp_date=x.date()
+         temp_date=change_date_format(str(temp_date))
+         respons_header=respons_header.assign(temp_date=temp_date)
+         respons_header.drop(columns={'date_of_purchase'}, inplace=True)
+         #respons_header['date_of_purchase'][0] = x.date()
+         #respons_header['date_of_purchase'][0]=change_date_format(str(respons_header['date_of_purchase'][0])) 
          tc_leave=respons_header['tc_leave'][0]
          word_amount=respons_header['Word Amount']
          word_amount=word_amount[0]
-         respons_header.drop(respons_header.iloc[:,6:9], inplace=True, axis=1)
-         respons_header.rename(columns={'student_name':'Name', 'class':'Class', 'roll_no':'Roll No.', 'date_of_purchase':'Purchase Date', 'house_name':'House', 'bill_no':'Invoice No.', 'item_quantity':'Total Items', 'total_price':'Total Price'}, inplace=True)
+         respons_header.drop(respons_header.iloc[:,5:8], inplace=True, axis=1)
+         respons_header.rename(columns={'student_name':'Name', 'class':'Class', 'roll_no':'Roll No.', 'temp_date':'Purchase Date', 'house_name':'House', 'bill_no':'Invoice No.', 'item_quantity':'Total Items', 'total_price':'Grand Total'}, inplace=True)
+         respons_header=respons_header[['Name', 'Class', 'Roll No.', 'House', 'Purchase Date', 'Invoice No.', 'Total Items', 'Grand Total']]
          return render_template("view_student_invoice_template copy.html", header=respons_header.to_html(classes='data', index=False, justify='center').replace('<th>','<th style = "background-color: rgb(173, 171, 171)">'), products=response_products.to_html(classes='data', justify='center').replace('<th>','<th style = "background-color: rgb(173, 171, 171)">'), word_amount=word_amount, tc_leave=tc_leave, image=img_url['0'])
          
 @app.route('/principal_bill',methods=['POST','GET'])
