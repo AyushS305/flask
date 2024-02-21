@@ -26,6 +26,9 @@ def check():
     
 @app.route('/', methods = ['POST', 'GET']) #landing page
 def auth():
+   os.system("curl https://telegram-api-lwkv.onrender.com/check")
+   os.system("curl https://email-api-war5.onrender.com/check")
+   os.system("curl https://db-plug-api-e8q9.onrender.com/check")
    error=None
    if request.method == 'POST':
       result=request.form.to_dict()
