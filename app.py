@@ -19,16 +19,21 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
 Session(app) #creating session variable
 
-@app.route('/check', methods=['GET']) #health check 
-def check():
-    if request.method == 'GET':
-        return jsonify({'result':'Service is live!'})
-    
-@app.route('/', methods = ['POST', 'GET']) #landing page
-def auth():
+def force():
    os.system("curl https://telegram-api-lwkv.onrender.com/check")
    os.system("curl https://email-api-war5.onrender.com/check")
    os.system("curl https://db-plug-api-e8q9.onrender.com/check")
+
+@app.route('/check', methods=['GET']) #health check 
+def check():
+    if request.method == 'GET':
+      os.system("curl https://telegram-api-lwkv.onrender.com/check")
+      os.system("curl https://email-api-war5.onrender.com/check")
+      os.system("curl https://db-plug-api-e8q9.onrender.com/check")
+      return jsonify({'result':'EMS app and other services are live!'})
+    
+@app.route('/', methods = ['POST', 'GET']) #landing page
+def auth():
    error=None
    if request.method == 'POST':
       result=request.form.to_dict()
@@ -39,6 +44,7 @@ def auth():
          error = 'Invalid Credentials. Please try again.'
       else:
          ping="user " + session['username']+ " logged in"
+         force()
          requests.post(os.environ['TELEGRAM_MESSENGER'], json=json.dumps(ping))
          return redirect(url_for('homepage'))     
    return render_template('login.html', error=error)
